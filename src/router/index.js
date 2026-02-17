@@ -2,8 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
+import HomeView from '@/views/HomeView.vue';
 import MealView from '../views/MealView.vue';
-import GoalView from '../views/GoalView.vue';
+import MealPlanView from '../views/MealPlanView.vue';
 import Order from '../views/Order.vue';
 import Contact from '../views/Contact.vue';
 
@@ -19,14 +20,19 @@ const routes = [
   },
 
   { 
+    path: '/homeview', 
+    component: HomeView,
+   
+  },
+  { 
     path: '/mealview', 
     component: MealView,
     meta: { requiresAuth: true }
   },
 
   { 
-    path: '/goalview', 
-    component: GoalView,
+    path: '/mealplanview', 
+    component: MealPlanView,
     meta: { requiresAuth: true }
   },
 

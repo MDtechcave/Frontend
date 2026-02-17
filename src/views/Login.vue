@@ -44,9 +44,10 @@ const goToRegister = () => {
         v-model="password"
       />
 
-      <button class="primary-btn" @click="handleLogin">
+      <button class="primary-btn" @click="$router.push('/homeview')">
         Login
       </button>
+      
 
       <hr />
 
