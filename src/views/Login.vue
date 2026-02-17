@@ -14,8 +14,8 @@ const handleLogin = () => {
     return
   }
 
-  // Temporary login success
-  router.push('/home')
+router.push('/mealview')   
+
 }
 
 const goToRegister = () => {
