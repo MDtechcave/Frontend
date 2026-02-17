@@ -1,9 +1,16 @@
-<script>
-</script>
+<style>
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
 
-<template>
+#app {
+  min-height: 100vh;
+  width: 100%;
+}
 
-</template>
-
-<style >
+body {
+  background: #f4f6f5;
+}
 </style>

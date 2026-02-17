@@ -1,39 +1,46 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from './components/Login.vue';
 
-import NavBar from './components/NavBar.vue';
-import Footer from './components/Footer.vue';
-import MealView from '../views/MealView.vue';
+import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
-import Contact from '../views/Contact.vue';
+import MealView from '../views/MealView.vue';
+import GoalView from '../views/GoalView.vue';
 import Order from '../views/Order.vue';
+import Contact from '../views/Contact.vue';
 
 const routes = [
-  { path: '/login', components: Login },
-  {path: '/Register', components: Register,
-    meta: {requiresAuth: true}
-   },
-  { path: '/',
-     component:NavBar ,
-    meta:{requiresAuth: true}
+  { path: '/', redirect: '/login' },
+
+  { path: '/login', component: Login },
+
+  { 
+    path: '/register', 
+    component: Register
+    // ✅ removed requiresAuth
   },
-    {path: '/MealView', components: MealView,
-    meta: {requiresAuth: true}
-   },
-  {path: '/GoalView', components: GoalView,
-    meta: {requiresAuth: true}
-   },
-  {path: '/Footer', components: Footer,
-    meta: {requiresAuth: true}
-   },
-    {path: '/Order', components: Order,
-    meta: {requiresAuth: true}
-   },
-     {path: '/Contact', components: Contact,
-    meta: {requiresAuth: true}
-   },
 
+  { 
+    path: '/mealview', 
+    component: MealView,
+    meta: { requiresAuth: true }
+  },
 
+  { 
+    path: '/goalview', 
+    component: GoalView,
+    meta: { requiresAuth: true }
+  },
+
+  { 
+    path: '/order', 
+    component: Order,
+    meta: { requiresAuth: true }
+  },
+
+  { 
+    path: '/contact', 
+    component: Contact,
+    meta: { requiresAuth: true }
+  },
 ];
 
 const router = createRouter({
@@ -42,12 +49,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const isloggedIn = localStorage.getItem("user");
+  const isLoggedIn = localStorage.getItem('user');
 
-  if (to.meta.requiresAuth && !isloggedIn) {
-    next('/login'); //sends you to login
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next('/login');
+  } else if (to.path === '/login' && isLoggedIn) {
+    next('/mealview');
   } else {
-    next(); //allows access
+    next();
   }
 });
 
