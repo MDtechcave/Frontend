@@ -14,7 +14,9 @@ const handleLogin = () => {
     return
   }
 
-router.push('/mealview')   
+   localStorage.setItem('user', username.value)
+
+router.push('/homeview')   
 
 }
 
@@ -44,7 +46,7 @@ const goToRegister = () => {
         v-model="password"
       />
 
-      <button class="primary-btn" @click="$router.push('/homeview')">
+      <button class="primary-btn" @click="handleLogin">
         Login
       </button>
       

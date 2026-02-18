@@ -7,9 +7,9 @@
     </div>
 
     <div class="nav-links">
-      <router-link to="/">Home</router-link>
-      <router-link to="/orders">Orders</router-link>
-       <router-link to="/about">Contact</router-link>
+      <router-link to="/homeview">Home</router-link>
+      <router-link to="/order">Orders</router-link>
+       <router-link to="/contact">Contact</router-link>
       <router-link to="/about">About</router-link>
       
     </div>
