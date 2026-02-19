@@ -12,7 +12,7 @@
       <!-- Quick Links -->
       <div class="footer-section">
         <h4>Quick Links</h4>
-        <router-link to="/homeview">Home</router-link>
+        <router-link to="/">Home</router-link>
         <router-link to="/order">Orders</router-link>
         <router-link to="/contact">Contact</router-link>
         <router-link to="/about">About</router-link>

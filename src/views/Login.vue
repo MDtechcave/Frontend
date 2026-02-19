@@ -5,20 +5,44 @@ import { useRouter } from 'vue-router'
 const username = ref('')
 const password = ref('')
 const errorMessage = ref('')
-
 const router = useRouter()
 
-const handleLogin = () => {
-  if (!username.value || !password.value) {
-    errorMessage.value = 'Please enter username/email and password.'
-    return
+const handleLogin = async () => {
+  errorMessage.value = ''
+  
+  try {
+    const response = await fetch('http://localhost:2534/api/user/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: username.value,
+        password: password.value
+      })
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      errorMessage.value = data.message || "Login failed";
+      return;
+    }
+
+    // ✅ Save user
+    localStorage.setItem('user', JSON.stringify(data.user));
+    
+    // ✅ Get redirect path from URL query, or default to home
+    const redirect = router.currentRoute.value.query.redirect || '/';
+    
+    // ✅ FIX: Remove quotes - use the variable, not a string!
+    router.push(redirect);
+
+  } catch (err) {
+    console.error('Login error:', err);
+    errorMessage.value = "Server error";
   }
-
-   localStorage.setItem('user', username.value)
-
-router.push('/homeview')   
-
-}
+};
 
 const goToRegister = () => {
   router.push('/register')

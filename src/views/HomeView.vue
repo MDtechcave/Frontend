@@ -2,7 +2,9 @@
 import NavBar from '../components/NavBar.vue'
 import Footer from '../components/Footer.vue'
 import { ref, onMounted, computed } from 'vue'
+import {useRouter} from 'vue-router';
 
+const router = useRouter()
 const meals = ref([])
 const loading = ref(true)
 const error = ref(null)
@@ -19,6 +21,8 @@ function getMealImage(meal) {
   }
   return fallbackImage
 }
+
+
 
 const fetchRandomMeals = async () => {
   try {
@@ -65,6 +69,15 @@ const fetchRandomMeals = async () => {
   }
 }
 
+const goToMealPlan = () => {
+  router.push('/mealplan')
+}
+
+const handleLogout = () => {
+  localStorage.removeItem('user')
+  router.push('/')
+
+}
 const mealsByType = computed(() => {
   const mealList = meals.value || []
   
@@ -96,14 +109,14 @@ onMounted(() => {
 <template>
   <div class="home-section">
     <NavBar />
-
+    
     <div class="home-content">
       <h1>Healthy Meals by Health Habits</h1>
       <p>Fresh, nutritious meals delivered to your door</p>
       <div class="button-group">
-        <button class="home-button primary" @click="$router.push('/mealplanview')">
-           Choose Your Meal Plan
-        </button>
+        <button class="home-button primary" @click="goToMealPlan">
+  Choose Your Meal Plan
+</button>
       </div>
     </div>
   </div>
@@ -454,4 +467,20 @@ main h2 {
   color: #666;
   font-size: 18px;
 }
+
+.logout-btn {
+  background: #F57C00;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #ef6c00;
+}
+
 </style>

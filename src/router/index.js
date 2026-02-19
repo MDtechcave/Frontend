@@ -1,69 +1,48 @@
-import { createRouter, createWebHistory } from 'vue-router';
-
-import Login from '../views/Login.vue';
-import Register from '../views/Register.vue';
-import HomeView from '@/views/HomeView.vue';
-import MealView from '../views/MealView.vue';
-import MealPlanView from '../views/MealPlanView.vue';
-import Order from '../views/Order.vue';
-import Contact from '../views/Contact.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import Login from '../views/Login.vue'
+import Register from '../views/Register.vue'
+import MealPlanView from '../views/MealPlanView.vue'
 
 const routes = [
-  { path: '/', redirect: '/login' },
-
-  { path: '/login', component: Login },
-
-  { 
-    path: '/register', 
-    component: Register
-    // ✅ removed requiresAuth
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView
   },
-
-  { 
-    path: '/homeview', 
-    component: HomeView,
    
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
   },
-  { 
-    path: '/mealview', 
-    component: MealView,
-    meta: { requiresAuth: true }
+  {
+    path: '/register',
+    name: 'register',
+    component: Register
   },
-
-  { 
-    path: '/mealplanview', 
+  {
+    path: '/mealplan',
+    name: 'mealplan',
     component: MealPlanView,
-    meta: { requiresAuth: true }
-  },
-
-  { 
-    path: '/order', 
-    component: Order,
-    meta: { requiresAuth: true }
-  },
-
-  { 
-    path: '/contact', 
-    component: Contact,
-    meta: { requiresAuth: true }
-  },
-];
+    
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
-});
+  routes
+})
 
+// 🔐 Route Guard
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = localStorage.getItem('user');
+  const user = localStorage.getItem('user')
 
-  if (to.meta.requiresAuth && !isLoggedIn) {
-    next('/login');
-  } else if (to.path === '/login' && isLoggedIn) {
-    next('/mealview');
+  if (to.meta.requiresAuth && !user) {
+    next('/login')
   } else {
-    next();
+    next()
   }
-});
+})
 
-export default router;
+export default router

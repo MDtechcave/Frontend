@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '../components/NavBar.vue'
 import Footer from '../components/Footer.vue'
@@ -7,15 +7,23 @@ import Footer from '../components/Footer.vue'
 const router = useRouter()
 const goals = ref([])
 const loading = ref(true)
-const error = ref(null) // Added error handling
+const error = ref(null) 
 
+const isAuthenticated = computed(() => {
+  return !!localStorage.getItem('user')
+})
+
+const promptLogin = () => {
+  
+  router.push(`/login?redirect=${router.currentRoute.value.fullPath}`)
+}
 const fetchGoals = async () => {
   try {
     loading.value = true
     error.value = null
     const response = await fetch('http://localhost:2534/api/goal')
     
-    // Check if response is ok before parsing
+  
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -31,11 +39,16 @@ const fetchGoals = async () => {
 }
 
 const selectGoal = (goalName) => {
-  // Add a smooth transition before navigating
-  router.push(`/meal-plans/${goalName}`)
+  if (!isAuthenticated.value) {
+  
+    router.push(`/login?redirect=${router.currentRoute.value.fullPath}`)
+    return
+  }
+  
+ 
 }
 
-// Added keyboard navigation handler
+
 const handleKeydown = (event, goalName) => {
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
@@ -53,7 +66,7 @@ onMounted(() => {
     <NavBar />
 
     <main class="main-content">
-      <!-- Hero Section -->
+   
       <section class="goal-hero">
         <div class="hero-content">
           <h1 class="hero-title">What's Your Fitness Goal?</h1>
@@ -61,21 +74,20 @@ onMounted(() => {
         </div>
       </section>
 
-      <!-- Goals Section -->
       <section class="goals-section">
-        <!-- Loading State -->
+    
         <div v-if="loading" class="loading-container">
           <div class="loading-spinner"></div>
           <p class="loading-text">Loading your goals...</p>
         </div>
 
-        <!-- Error State -->
+      
         <div v-else-if="error" class="error-container">
           <p class="error-message">{{ error }}</p>
           <button @click="fetchGoals" class="retry-btn">Try Again</button>
         </div>
 
-        <!-- Goals Grid -->
+       
         <div v-else class="goals-grid">
           <div 
             v-for="(goal, index) in goals" 
@@ -102,10 +114,19 @@ onMounted(() => {
               <span class="goal-icon" aria-hidden="true">{{ goal.icon }}</span>
               <h2 class="goal-title">{{ goal.display_name }}</h2>
               <p class="goal-description">{{ goal.description }}</p>
-              <button class="select-btn" aria-hidden="true">
-                Select This Plan
-                <span class="btn-arrow">→</span>
-              </button>
+
+<button 
+  class="select-btn" 
+  @click="isAuthenticated ? selectGoal(goal.name) : promptLogin()"
+>
+  {{ isAuthenticated ? 'Select This Plan' : 'Select meal plan' }}
+  <span class="btn-arrow">→</span>
+</button>
+
+<!-- Optional: Add a subtle tooltip or hint -->
+<p v-if="!isAuthenticated" class="login-hint">
+  <small>Login required to place orders!</small>
+</p>
             </div>
           </div>
         </div>
