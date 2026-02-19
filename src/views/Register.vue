@@ -7,6 +7,8 @@ const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const errorMessage = ref('')
+const showPassword = ref(false)
+const showConfirmPassword = ref()
 
 const router = useRouter()
 

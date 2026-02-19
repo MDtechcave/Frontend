@@ -6,6 +6,7 @@ const username = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const router = useRouter()
+const showPassword = ref(false)
 
 const handleLogin = async () => {
   errorMessage.value = ''
@@ -22,6 +23,13 @@ const handleLogin = async () => {
       })
     });
 
+    const showPassword = ref(false)
+
+const togglePassword = () => {
+  showPassword.value = !showPassword.value
+}
+
+
     const data = await response.json();
     
     if (!response.ok) {
@@ -29,13 +37,13 @@ const handleLogin = async () => {
       return;
     }
 
-    // ✅ Save user
+    // Save user
     localStorage.setItem('user', JSON.stringify(data.user));
     
-    // ✅ Get redirect path from URL query, or default to home
+    
     const redirect = router.currentRoute.value.query.redirect || '/';
     
-    // ✅ FIX: Remove quotes - use the variable, not a string!
+  
     router.push(redirect);
 
   } catch (err) {
@@ -64,11 +72,16 @@ const goToRegister = () => {
         v-model="username"
       />
 
-      <input
-        type="password"
-        placeholder="Password"
-        v-model="password"
-      />
+      <div class="password-wrapper">
+  <input
+    :type="showPassword ? 'text' : 'password'"
+    placeholder="Password"
+    v-model="password"
+  />
+  <span class="toggle-password" @click="togglePassword">
+    {{ showPassword ? 'Hide' : 'Show' }}
+  </span>
+</div>
 
       <button class="primary-btn" @click="handleLogin">
         Login
@@ -176,7 +189,7 @@ hr {
   font-size: 14px;
 }
 
-/* 🔥 Mobile adjustments */
+
 @media (max-width: 480px) {
   .auth-card {
     padding: 25px;
@@ -191,5 +204,6 @@ hr {
     width: 120px;
   }
 }
+
 
 </style>
