@@ -4,53 +4,25 @@ import { useRouter } from 'vue-router'
 
 const username = ref('')
 const password = ref('')
-const errorMessage = ref('')
-const router = useRouter()
+//const errorMessage = ref('')
 const showPassword = ref(false)
 
-const handleLogin = async () => {
-  errorMessage.value = ''
-  
-  try {
-    const response = await fetch('http://localhost:2534/api/user/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: username.value,
-        password: password.value
-      })
-    });
+const router = useRouter()
 
-    const showPassword = ref(false)
-
-    const togglePassword = () => {
-      showPassword.value = !showPassword.value
+// ✅ This must be OUTSIDE handleLogin
+const togglePassword = () => {
+  showPassword.value = !showPassword.value
 }
 
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      errorMessage.value = data.message || "Login failed";
-      return;
-    }
-
-    // Save user
-    localStorage.setItem('user', JSON.stringify(data.user));
-    
-    
-    const redirect = router.currentRoute.value.query.redirect || '/';
-    
-  
-    router.push(redirect);
-
-  } catch (err) {
-    console.error('Login error:', err);
-    errorMessage.value = "Server error";
+const handleLogin = () => {
+  // Store username if needed (optional)
+  if (username.value) {
+    localStorage.setItem('tempUsername', username.value)
   }
-};
+  
+  // Redirect to home page
+  router.push('/')
+}
 
 const goToRegister = () => {
   router.push('/register')
@@ -63,8 +35,6 @@ const goToRegister = () => {
       <h2>Welcome Back!</h2>
 
       <img src="@/assets/logo.png" alt="Healthy Habits Logo" class="logo" />
-
-      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
       <input
         type="text"
