@@ -1,4 +1,5 @@
 <template>
+  
   <div class="cart-page">
     <h1>Your Cart</h1>
 

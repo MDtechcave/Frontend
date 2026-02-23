@@ -6,33 +6,33 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const isAuthenticated = ref(false)
 
-// 🛠️ DEV MODE: Set to true to force logout on every load (for testing)
+
 const DEV_MODE_FORCE_LOGOUT = true
 
 const checkAuth = () => {
-  // 🛠️ DEV MODE: Clear localStorage if enabled
+ 
   if (DEV_MODE_FORCE_LOGOUT) {
-    console.log('🧹 DEV MODE: Clearing localStorage')
+    console.log(' DEV MODE: Clearing localStorage')
     localStorage.removeItem('user')
   }
 
   const user = localStorage.getItem('user')
-  console.log('🔍 localStorage user:', user)
+  console.log(' localStorage user:', user)
   
   if (user) {
     try {
       const userData = JSON.parse(user)
-      // Only authenticate if userData has actual content
+      
       isAuthenticated.value = userData && userData.id ? true : false
-      console.log('✅ Auth state:', isAuthenticated.value ? 'LOGGED IN' : 'LOGGED OUT')
+      console.log(' Auth state:', isAuthenticated.value ? 'LOGGED IN' : 'LOGGED OUT')
     } catch (e) {
-      console.error('❌ Invalid user data:', e)
+      console.error(' Invalid user data:', e)
       localStorage.removeItem('user')
       isAuthenticated.value = false
     }
   } else {
     isAuthenticated.value = false
-    console.log('🚫 No user - showing Login/Signup')
+    console.log(' No user - showing Login/Signup')
   }
 }
 
@@ -64,24 +64,22 @@ onUnmounted(() => {
 <template>
   <nav class="navbar">
     <div class="nav-container">
-      <!-- Logo -->
       <router-link to="/" class="nav-logo">
         <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
         <span>Healthy Habits</span>
       </router-link>
 
-      <!-- Links -->
+     
       <div class="nav-links">
         <router-link to="/" class="nav-link">Home</router-link>
         <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
-        <!--<router-link to="/about" class="nav-link">About Us</router-link>-->
-        <!-- ✅ Fixed: Added leading slash -->
         <router-link to="/contact" class="nav-link">Contact Us</router-link>
+        <router-link to = "/cart" class = "nav-link">Cart</router-link>
       </div>
 
-      <!-- Auth Buttons -->
+    
       <div class="nav-auth">
-        <!-- Logged IN -->
+     
         <template v-if="isAuthenticated">
           <span class="welcome-text">Welcome!</span>
           <button @click="handleLogout" class="nav-btn logout-btn">
@@ -89,7 +87,7 @@ onUnmounted(() => {
           </button>
         </template>
         
-        <!-- Logged OUT (DEFAULT) -->
+       
         <template v-else>
           <button @click="handleLogin" class="nav-btn login-btn">
             Login
