@@ -8,7 +8,7 @@
 
     <h2>Total: R{{ total }}</h2>
 
-    <button @click="goToPayment">
+    <button class="payment-btn" @click="goToPayment">
       Continue to Payment
     </button>
   </div>
@@ -30,3 +30,7 @@ function goToPayment() {
   router.push("/payment");
 }
 </script>
+
+<style scoped>
+
+</style>

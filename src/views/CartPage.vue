@@ -10,12 +10,14 @@
     <div v-for="(item, index) in cart" :key="index" class="cart-item">
       <h3>{{ item.meal_name }}</h3>
       <p>R{{ item.price }}</p>
-      <button @click="removeItem(index)">Remove</button>
+      <button @click="removeItem(index)" class="remove-btn">
+        Remove
+      </button>
     </div>
 
     <h2>Total: R{{ total }}</h2>
 
-    <button v-if="cart.length > 0" @click="goToCheckout">
+    <button v-if="cart.length > 0" class="checkout-btn" @click="goToCheckout">
       Proceed to Checkout
     </button>
   </div>
@@ -27,7 +29,10 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const cart = ref(JSON.parse(localStorage.getItem("cart")) || []);
+const cart = ref([
+  {meal_name: "Chicken Bowl", price: "85"},
+  {meal_name: "Chicken Bowl", price: "85"},
+]);
 
 const total = computed(() =>
   cart.value.reduce((sum, item) => sum + Number(item.price), 0)
@@ -44,9 +49,73 @@ function goToCheckout() {
 </script>
 
 <style scoped>
+.cart-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.cart-page h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2E7D32;
+}
+
 .cart-item {
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.price {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Remove Button */
+.remove-btn {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.remove-btn:hover {
+  background-color: #b71c1c;
+  transform: scale(1.05);
+}
+
+/* Total Section */
+.total {
+  text-align: right;
+  margin-top: 20px;
+  color: #2E7D32;
+}
+
+/* Checkout Button */
+.checkout-btn {
+  display: block;
+  margin-left: auto;
+  margin-top: 20px;
+  background-color: #F57C00;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background-color: #ef6c00;
+  transform: scale(1.05);
 }
 </style>
