@@ -1,217 +1,178 @@
-<!-- src/components/NavBar.vue -->
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const isAuthenticated = ref(false)
 
-
-const DEV_MODE_FORCE_LOGOUT = true
-
 const checkAuth = () => {
- 
-  if (DEV_MODE_FORCE_LOGOUT) {
-    console.log(' DEV MODE: Clearing localStorage')
-    localStorage.removeItem('user')
-  }
-
   const user = localStorage.getItem('user')
-  console.log(' localStorage user:', user)
-  
-  if (user) {
-    try {
-      const userData = JSON.parse(user)
-      
-      isAuthenticated.value = userData && userData.id ? true : false
-      console.log(' Auth state:', isAuthenticated.value ? 'LOGGED IN' : 'LOGGED OUT')
-    } catch (e) {
-      console.error(' Invalid user data:', e)
-      localStorage.removeItem('user')
-      isAuthenticated.value = false
-    }
-  } else {
+
+  if(user){
+    const userData = JSON.parse(user)
+    isAuthenticated.value = !!userData?.id
+  }else{
     isAuthenticated.value = false
-    console.log(' No user - showing Login/Signup')
   }
 }
 
 const handleLogout = () => {
   localStorage.removeItem('user')
   isAuthenticated.value = false
-  window.dispatchEvent(new Event('storage'))
   router.push('/')
 }
 
-const handleLogin = () => {
-  router.push('/login')
-}
+const handleLogin = () => router.push('/login')
+const handleSignup = () => router.push('/register')
 
-const handleSignup = () => {
-  router.push('/register')
-}
-
-onMounted(() => {
-  checkAuth()
-  window.addEventListener('storage', checkAuth)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('storage', checkAuth)
-})
+onMounted(checkAuth)
 </script>
 
 <template>
-  <nav class="navbar">
-    <div class="nav-container">
-      <router-link to="/" class="nav-logo">
-        <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
-        <span>Healthy Habits</span>
-      </router-link>
+<nav class="navbar">
 
-     
-      <div class="nav-links">
-        <router-link to="/" class="nav-link">Home</router-link>
-        <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
-        <router-link to="/contact" class="nav-link">Contact Us</router-link>
-        <router-link to = "/cart" class = "nav-link">Cart</router-link>
-      </div>
+  <div class="nav-container">
 
-    
-      <div class="nav-auth">
-     
-        <template v-if="isAuthenticated">
-          <span class="welcome-text">Welcome!</span>
-          <button @click="handleLogout" class="nav-btn logout-btn">
-            Logout
-          </button>
-        </template>
-        
-       
-        <template v-else>
-          <button @click="handleLogin" class="nav-btn login-btn">
-            Login
-          </button>
-          <button @click="handleSignup" class="nav-btn register-btn">
-            Sign Up
-          </button>
-        </template>
-      </div>
+    <router-link to="/" class="nav-logo">
+      <img src="@/assets/logo.png" class="logo-img">
+      Healthy Habits
+    </router-link>
+
+    <div class="nav-links">
+
+      <router-link to="/" class="nav-link">Home</router-link>
+      <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
+      <router-link to="/contact" class="nav-link">Contact</router-link>
+      <router-link to="/cart" class="nav-link">Cart</router-link>
+
     </div>
-  </nav>
+
+    <div class="nav-auth">
+
+      <template v-if="isAuthenticated">
+
+        <button class="nav-btn logout-btn"
+        @click="handleLogout">
+          Logout
+        </button>
+
+      </template>
+
+      <template v-else>
+
+        <button class="nav-btn login-btn"
+        @click="handleLogin">
+          Login
+        </button>
+
+        <button class="nav-btn register-btn"
+        @click="handleSignup">
+          Sign Up
+        </button>
+
+      </template>
+
+    </div>
+
+  </div>
+
+</nav>
 </template>
 
 <style scoped>
-.navbar {
-  background: rgba(255, 255, 255, 0.91);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+
+.navbar{
+  position:sticky;
+  top:0;
+  z-index:1000;
+
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(10px);
+
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
 }
 
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.nav-container{
+  max-width:1200px;
+  margin:auto;
+  padding:14px 30px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
 
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: #2E7D32;
-  font-weight: 700;
-  font-size: 1.2rem;
+.nav-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  text-decoration:none;
+  font-weight:700;
+  color:#2E7D32;
 }
 
-.logo-img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+.logo-img{
+  width:40px;
 }
 
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
+.nav-links{
+  display:flex;
+  gap:25px;
 }
 
-.nav-link {
-  text-decoration: none;
-  color:#333 ;
-  font-weight: 500;
-  transition: color 0.3s;
+.nav-link{
+  text-decoration:none;
+  color:#333;
+  font-weight:500;
 }
 
-.nav-link:hover,
-.nav-link.router-link-active {
-  color: #2E7D32;
+.nav-link:hover{
+  color:#2E7D32;
 }
 
-.nav-auth {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.nav-auth{
+  display:flex;
+  gap:10px;
 }
 
-.welcome-text {
-  color: #666;
-  font-size: 0.9rem;
+.nav-btn{
+  padding:8px 18px;
+  border-radius:20px;
+  border:none;
+  cursor:pointer;
 }
 
-.nav-btn {
-  padding: 8px 20px;
-  border: none;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
+.login-btn{
+  border:2px solid #2E7D32;
+  background:transparent;
+  color:#2E7D32;
 }
 
-.login-btn {
-  background: transparent;
-  border: 2px solid #2E7D32;
-  color: #2E7D32;
-}
-.login-btn:hover {
-  background: #2E7D32;
-  color: white;
+.register-btn{
+  background:#F57C00;
+  color:white;
 }
 
-.register-btn {
-  background: #F57C00;
-  color: white;
-}
-.register-btn:hover {
-  background: #ef6c00;
-}
-
-.logout-btn {
-  background: #d32f2f;
-  color: white;
-}
-.logout-btn:hover {
-  background: #c62828;
+.logout-btn{
+  background:#d32f2f;
+  color:white;
 }
 
 /* Mobile */
-@media (max-width: 768px) {
-  .nav-container {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .nav-links {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
-  }
+
+@media (max-width:768px){
+
+.nav-container{
+  flex-wrap:wrap;
+  gap:15px;
 }
+
+.nav-links{
+  width:100%;
+  justify-content:center;
+}
+
+}
+
 </style>
