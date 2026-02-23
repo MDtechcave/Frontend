@@ -76,7 +76,9 @@ onUnmounted(() => {
         <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
         <!--<router-link to="/about" class="nav-link">About Us</router-link>-->
         <!-- ✅ Fixed: Added leading slash -->
+        <router-link to="/mealcard" class="nav-link">Meal Card</router-link>
         <router-link to="/contact" class="nav-link">Contact Us</router-link>
+        <router-link to="/cart" class="nav-link">Cart</router-link>
       </div>
 
       <!-- Auth Buttons -->

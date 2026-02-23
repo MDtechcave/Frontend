@@ -32,6 +32,9 @@
         <div class="social-links">
           <a href="#">Facebook</a>
           <a href="#">Instagram</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">X</a>
+          <a href="#">TikTok</a>
         </div>
       </div>
 
