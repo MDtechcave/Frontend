@@ -35,6 +35,7 @@ const routes = [
     name: 'Cart',
     component: CartPage
   },
+
   {
     path: '/payment',
     name: 'Payment',

@@ -1,6 +1,12 @@
 <template>
+<<<<<<< HEAD
   <div class="cart-container">
     <h1 class="title">Your Cart</h1>
+=======
+  
+  <div class="cart-page">
+    <h1>Your Cart</h1>
+>>>>>>> 4fea8578cbb4beba3363aa6a602e2b5bceefab72
 
     <div v-if="cartItems.length" class="cart-items">
       <div v-for="item in cartItems" :key="item.id" class="cart-card">
@@ -17,12 +23,27 @@
       <p>No items in cart yet. Add some delicious meals!</p>
     </div>
 
+<<<<<<< HEAD
     <router-link to="/checkout" class="btn proceed-btn">
+=======
+    <div v-for="(item, index) in cart" :key="index" class="cart-item">
+      <h3>{{ item.meal_name }}</h3>
+      <p>R{{ item.price }}</p>
+      <button @click="removeItem(index)" class="remove-btn">
+        Remove
+      </button>
+    </div>
+
+    <h2>Total: R{{ total }}</h2>
+
+    <button v-if="cart.length > 0" class="checkout-btn" @click="goToCheckout">
+>>>>>>> 4fea8578cbb4beba3363aa6a602e2b5bceefab72
       Proceed to Checkout
     </router-link>
   </div>
 </template>
 
+<<<<<<< HEAD
 <script>
 export default {
   name: "Cart",
@@ -87,10 +108,57 @@ h1, h2, h3, p{
 
 .meal-info {
   padding: 1rem;
+=======
+<script setup>
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const cart = ref([
+  {meal_name: "Chicken Bowl", price: "85"},
+  {meal_name: "Chicken Bowl", price: "85"},
+]);
+
+const total = computed(() =>
+  cart.value.reduce((sum, item) => sum + Number(item.price), 0)
+);
+
+function removeItem(index) {
+  cart.value.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart.value));
+}
+
+function goToCheckout() {
+  router.push("/checkout");
+}
+</script>
+
+<style scoped>
+.cart-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.cart-page h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2E7D32;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+>>>>>>> 4fea8578cbb4beba3363aa6a602e2b5bceefab72
 }
 
 .price {
   font-weight: bold;
+<<<<<<< HEAD
   color: #2e7d32;
 }
 
@@ -109,5 +177,53 @@ h1, h2, h3, p{
 .btn:hover {
   transform: scale(1.05) rotate(-1deg);
   box-shadow: 0 8px 15px rgba(66, 165, 245, 0.3);
+=======
+  color: #333;
+}
+
+/* Remove Button */
+.remove-btn {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.remove-btn:hover {
+  background-color: #b71c1c;
+  transform: scale(1.05);
+}
+
+/* Total Section */
+.total {
+  text-align: right;
+  margin-top: 20px;
+  color: #2E7D32;
+}
+
+/* Checkout Button */
+.checkout-btn {
+  display: block;
+  margin-left: auto;
+  margin-top: 20px;
+  background-color: #F57C00;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background-color: #ef6c00;
+  transform: scale(1.05);
+>>>>>>> 4fea8578cbb4beba3363aa6a602e2b5bceefab72
 }
 </style>
