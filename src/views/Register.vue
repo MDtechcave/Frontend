@@ -1,4 +1,4 @@
-<script setup>
+<script >
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -52,7 +52,7 @@ const handleRegister = () => {
   </div>
 </template>
 
-<style scoped>
+<style >
 
 .auth-container {
   min-height: 100vh;

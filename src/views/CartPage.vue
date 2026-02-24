@@ -23,7 +23,7 @@
   </div>
 </template>
 
-<script setup>
+<!-- <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 
@@ -47,6 +47,45 @@ function goToCheckout() {
   router.push("/checkout");
 }
 </script>
+ -->
+
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const cart = ref([]);
+
+onMounted(() => {
+  const saved = localStorage.getItem("cart");
+  const parsed = saved ? JSON.parse(saved) : null;
+
+  // If nothing is saved yet, use demo items (so your UI + button shows)
+  cart.value =
+    Array.isArray(parsed) && parsed.length
+      ? parsed
+      : [
+          { meal_name: "Chicken Bowl", price: "85" },
+          { meal_name: "Chicken Bowl", price: "85" },
+        ];
+
+  // Keep it consistent: save whatever we’re displaying
+  localStorage.setItem("cart", JSON.stringify(cart.value));
+});
+
+const total = computed(() =>
+  cart.value.reduce((sum, item) => sum + Number(item.price), 0)
+);
+
+function removeItem(index) {
+  cart.value.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart.value));
+}
+
+function goToCheckout() {
+  router.push("/checkout");
+}
+</script> 
 
 <style scoped>
 .cart-page {

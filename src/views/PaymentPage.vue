@@ -1,46 +1,182 @@
 <template>
-  <div class="payment-page">
-    <h1>Payment</h1>
+  <div class="payment-wrapper">
+    <h2>Complete Payment</h2>
 
-    <p>Total Amount: R{{ total }}</p>
+    <div class="card">
+      <p><strong>Amount:</strong> R{{ amountFromRoute }}</p>
 
-    <!-- Stripe will be integrated here later -->
-    <div class="stripe-placeholder">
-      <p>Stripe Payment Integration Coming Soon</p>
+      <div id="payment-element"></div>
+
+      <button :disabled="loading" @click="handlePayment">
+        {{ loading ? "Processing..." : "Pay Now" }}
+      </button>
+
+      <p v-if="message" class="message">{{ message }}</p>
     </div>
-
-    <button @click="simulatePayment">
-      Complete Payment
-    </button>
   </div>
 </template>
 
+<!-- <script setup>
+import { ref, onMounted } from "vue";
+import { loadStripe } from "@stripe/stripe-js";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const amount = Number(route.query.amount || 0);
+
+const stripe = ref(null);
+const elements = ref(null);
+const loading = ref(false);
+const message = ref("");
+const amount = ref(199); // change dynamically if needed
+const subId = 1; // change based on logged in user
+
+const API_URL = import.meta.env.VITE_API_URL;
+const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+
+let clientSecret = null;
+
+onMounted(async () => {
+  stripe.value = await loadStripe(PUBLISHABLE_KEY);
+
+  // 1️⃣ Create payment intent (calls your backend)
+  const res = await fetch(`${API_URL}/api/payments/create-payment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      sub_id: subId,
+      amount: amount.value
+    })
+  });
+
+  const data = await res.json();
+  clientSecret = data.clientSecret;
+
+  elements.value = stripe.value.elements({ clientSecret });
+
+  const paymentElement = elements.value.create("payment");
+  paymentElement.mount("#payment-element");
+});
+
+const handlePayment = async () => {
+  loading.value = true;
+  message.value = "";
+
+  const { error } = await stripe.value.confirmPayment({
+    elements: elements.value,
+    redirect: "if_required"
+  });
+
+  if (error) {
+    message.value = error.message;
+  } else {
+    message.value = "Payment successful! 🎉";
+  }
+
+  loading.value = false;
+};
+</script> -->
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, computed } from "vue";
+import { loadStripe } from "@stripe/stripe-js";
+import { useRoute } from "vue-router";
 
-const router = useRouter();
+const route = useRoute();
 
-const cart = ref(JSON.parse(localStorage.getItem("cart")) || []);
+// amount from checkout query (rands)
+const amountFromRoute = computed(() => Number(route.query.amount || 0));
 
-const total = computed(() =>
-  cart.value.reduce((sum, item) => sum + Number(item.price), 0)
-);
+const stripe = ref(null);
+const elements = ref(null);
+const loading = ref(false);
+const message = ref("");
 
-function simulatePayment() {
-  alert("Payment Successful (Simulated)");
+const subId = 1; // TODO: replace with real user/sub id from auth later
 
-  localStorage.removeItem("cart");
+const API_URL = import.meta.env.VITE_API_URL;
+const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
-  router.push("/");
-}
+onMounted(async () => {
+  try {
+    if (!amountFromRoute.value || amountFromRoute.value <= 0) {
+      message.value = "No amount found. Please go back to checkout.";
+      return;
+    }
+
+    stripe.value = await loadStripe(PUBLISHABLE_KEY);
+    if (!stripe.value) {
+      message.value = "Stripe failed to load. Check your publishable key.";
+      return;
+    }
+
+    // Create payment intent (calls your backend)
+    const res = await fetch(`${API_URL}/api/payments/create-payment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sub_id: subId,
+        amount: amountFromRoute.value
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      message.value = data?.error || "Failed to create payment.";
+      return;
+    }
+
+    elements.value = stripe.value.elements({ clientSecret: data.clientSecret });
+
+    const paymentElement = elements.value.create("payment");
+    paymentElement.mount("#payment-element");
+  } catch (err) {
+    message.value = err.message || "Something went wrong.";
+  }
+});
+
+const handlePayment = async () => {
+  loading.value = true;
+  message.value = "";
+
+  const { error } = await stripe.value.confirmPayment({
+    elements: elements.value,
+    redirect: "if_required"
+  });
+
+  message.value = error ? error.message : "Payment successful! 🎉";
+  loading.value = false;
+};
 </script>
 
 <style scoped>
-.stripe-placeholder {
-  border: 2px dashed #ccc;
+.payment-wrapper {
+  max-width: 500px;
+  margin: 40px auto;
+  font-family: Arial;
+}
+
+.card {
+  border: 1px solid #ddd;
   padding: 20px;
-  margin: 20px 0;
-  text-align: center;
+  border-radius: 12px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+.message {
+  margin-top: 15px;
 }
 </style>

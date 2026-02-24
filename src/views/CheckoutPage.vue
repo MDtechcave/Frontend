@@ -37,8 +37,16 @@ function applyDiscount() {
   discountApplied.value = true;
 }
 
+// function goToPayment() {
+//   router.push("/payment");
+// }
 function goToPayment() {
-  router.push("/payment");
+  router.push({
+    path: "/payment",
+    query: {
+      amount: total.value
+    }
+  });
 }
 </script>
 
