@@ -1,5 +1,8 @@
 <template>
-  <div class="contact-container">
+  <div class="contact-container"> 
+    <NavBar />
+    <Sidebar />
+       
     <h1 class="title">Let's Get In Touch</h1>
     <p class="subtitle">
       We’d love to hear from you. Whether it’s a question, feedback, or partnership inquiry — we’re here for it.
@@ -72,11 +75,13 @@
 
 <script setup>
 import { ref } from "vue";
+import NavBar from "@/components/NavBar.vue";
 import tiktokGif from '../assets/icons8-tiktok-logo.gif'
 import facebookGif from '../assets/icons8-facebook-circled.gif'
 import instagramGif from '../assets/icons8-instagram-logo.gif'
 import xGif from '../assets/icons8-x-logo-50.png'
 import linkedinGif from '../assets/icons8-linkedin-2.gif'
+import Sidebar from "@/components/Sidebar.vue";
 
 const name = ref("");
 const email = ref("");
@@ -94,9 +99,10 @@ function submitForm() {
 <style scoped>
 
 .contact-container {
-  padding: 50px 10%;
+  padding-left: 2%;
+  padding-right: 2%;
   text-align: center;
-  background: linear-gradient(to bottom, #f7fff7, #e8f5e9);
+  background: linear-gradient(to bottom, #f7fff7, #ffffff);
 }
 
 p, h3, h2{

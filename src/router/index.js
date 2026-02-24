@@ -7,6 +7,7 @@ import Contact from '../views/Contact.vue'
 import CartPage from '../views/CartPage.vue'
 import MealCard from '../views/MealCard.vue'
 import PaymentPage from '@/views/PaymentPage.vue'
+import CheckoutPage from '@/views/CheckoutPage.vue'
 
 const routes = [
   {
@@ -34,6 +35,11 @@ const routes = [
     path: '/cart',
     name: 'Cart',
     component: CartPage
+  },
+  {
+    path: '/checkout',
+    name: 'Checkout',
+    component: CheckoutPage
   },
 
   {

@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '../components/NavBar.vue'
 import Footer from '../components/Footer.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
 const router = useRouter()
 const goals = ref([])
@@ -64,6 +65,7 @@ onMounted(() => {
 <template>
   <div class="goal-page">
     <NavBar />
+    <Sidebar />
 
     <main class="main-content">
    
