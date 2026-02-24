@@ -94,7 +94,8 @@ function submitForm() {
 <style scoped>
 
 .contact-container {
-  padding: 50px 10%;
+  padding-left: 2%;
+  padding-right: 2%;
   text-align: center;
   background: linear-gradient(to bottom, #f7fff7, #e8f5e9);
 }
