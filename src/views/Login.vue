@@ -5,11 +5,12 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const email = ref('')
 const password = ref('')
+const role = ref('')  // 'USER' or 'ADMIN'
 const errorMessage = ref('')
 const loading = ref(false)
 const showPassword = ref(false)
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:2534'
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value
@@ -18,31 +19,44 @@ const togglePassword = () => {
 const handleLogin = async () => {
   errorMessage.value = ''
 
-  if (!email.value || !password.value) {
-    errorMessage.value = 'Please enter email and password.'
+  // ✅ Fixed: use email.value (not username)
+  if (!email.value || !password.value || !role.value) {
+    errorMessage.value = 'Please fill in all fields'
     return
   }
 
+  loading.value = true
+
   try {
-    loading.value = true
-    const res = await fetch(`${API_URL}/api/users/login`, {
+    const res = await fetch(`${API_URL}/api/auth/login`, {  // ✅ Updated endpoint
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email.value,
-        password: password.value
+        password: password.value,
+        role: role.value.toUpperCase()  // Ensure uppercase to match DB
       })
     })
 
     const data = await res.json()
-    if (!res.ok) {
-      errorMessage.value = data.error || 'Login failed.'
+    
+    if (!res.ok || !data.success) {
+      errorMessage.value = data.message || 'Login failed.'
       return
     }
 
+    // ✅ Store user info
     localStorage.setItem('user', JSON.stringify(data.user))
-    router.push('/mealplan')
+    
+    // ✅ Role-based redirect
+    if (data.user.role === 'ADMIN') {
+      router.push('/admin')
+    } else {
+      router.push('/')  // or '/user/home'
+    }
+    
   } catch (err) {
+    console.error('Login error:', err)
     errorMessage.value = 'Server error. Please try again.'
   } finally {
     loading.value = false
@@ -63,24 +77,49 @@ const goToRegister = () => {
 
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
+      <!-- Email Input -->
       <input
         type="email"
         placeholder="Email"
         v-model="email"
+        :disabled="loading"
+        @keyup.enter="handleLogin"
       />
 
+      <!-- Password Input with Toggle -->
       <div class="password-wrapper">
         <input
           :type="showPassword ? 'text' : 'password'"
           placeholder="Password"
           v-model="password"
+          :disabled="loading"
+          @keyup.enter="handleLogin"
         />
         <span class="toggle-password" @click="togglePassword">
           {{ showPassword ? 'Hide' : 'Show' }}
         </span>
       </div>
 
-      <button class="primary-btn" :disabled="loading" @click="handleLogin">
+      <!-- ✅ Role Selection Dropdown -->
+      <div class="form-group">
+        <label>Login As</label>
+        <select 
+          v-model="role" 
+          :disabled="loading"
+          class="role-select"
+        >
+          <option value="" disabled>Select Your Role</option>
+          <option value="USER">Customer</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+      </div>
+
+      <!-- Login Button -->
+      <button 
+        class="primary-btn" 
+        :disabled="loading" 
+        @click="handleLogin"
+      >
         {{ loading ? 'Logging in...' : 'Login' }}
       </button>
 
@@ -88,7 +127,11 @@ const goToRegister = () => {
 
       <p class="redirect-text">Don't have an account?</p>
 
-      <button class="secondary-btn" @click="goToRegister">
+      <button 
+        class="secondary-btn" 
+        @click="goToRegister"
+        :disabled="loading"
+      >
         Sign Up
       </button>
     </div>
@@ -108,6 +151,7 @@ const goToRegister = () => {
   justify-content: center;
   align-items: center;
   background: #f4f6f5;
+  padding: 20px;
 }
 
 .auth-card {
@@ -126,13 +170,19 @@ const goToRegister = () => {
   font-size: 24px;
 }
 
-input {
+input, select {
   width: 100%;
   padding: 12px;
   margin-bottom: 15px;
   border-radius: 10px;
   border: 1px solid #ccc;
   font-size: 14px;
+  box-sizing: border-box;
+}
+
+input:disabled, select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
 .password-wrapper {
@@ -142,6 +192,7 @@ input {
 
 .password-wrapper input {
   margin-bottom: 0;
+  padding-right: 60px;
 }
 
 .toggle-password {
@@ -153,6 +204,40 @@ input {
   font-size: 13px;
   color: #2E7D32;
   font-weight: 600;
+  user-select: none;
+}
+
+.toggle-password:hover {
+  text-decoration: underline;
+}
+
+/* ✅ Role Select Styling */
+.form-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.role-select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.role-select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
 .primary-btn,
@@ -186,7 +271,7 @@ input {
   color: white;
 }
 
-.secondary-btn:hover {
+.secondary-btn:hover:not(:disabled) {
   background: #ef6c00;
 }
 
@@ -204,8 +289,22 @@ hr {
 }
 
 .error {
-  color: red;
-  margin-bottom: 10px;
+  color: #d32f2f;
+  margin-bottom: 15px;
   font-size: 14px;
+  background: #ffebee;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #d32f2f;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 25px;
+    border-radius: 15px;
+  }
+  .logo {
+    width: 120px;
+  }
 }
 </style>

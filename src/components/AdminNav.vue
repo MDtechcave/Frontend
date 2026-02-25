@@ -56,7 +56,7 @@ onMounted(checkAuth)
 
         <!-- ✅ Show when logged in -->
         <template v-if="isAuthenticated">
-          <span class="user-greeting">Hi, {{ userName }} </span>
+          <span class="user-greeting">Hi, {{ userName }} 👋</span>
           
           <button class="nav-btn logout-btn" @click="handleLogout">
             Logout

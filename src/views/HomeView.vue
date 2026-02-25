@@ -25,7 +25,7 @@ const fetchRandomMeals = async () => {
     loading.value = true
     error.value = null
 
-    const response = await fetch('http://localhost:2534/api/home/data')
+    const response = await fetch('http://localhost:2534/api/meals')
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)

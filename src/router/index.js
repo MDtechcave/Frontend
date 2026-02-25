@@ -7,6 +7,7 @@ import CartPage from '../views/CartPage.vue'
 import CheckoutPage from '../views/CheckoutPage.vue'
 import PaymentPage from '../views/PaymentPage.vue'
 import Packages from '../views/Packages.vue'
+import Admin from '@/views/Admin.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: Admin
   },
   {
     path: '/register',
