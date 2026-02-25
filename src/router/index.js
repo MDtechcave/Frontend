@@ -6,6 +6,7 @@ import MealPlanView from '../views/MealPlanView.vue'
 import CartPage from '../views/CartPage.vue'
 import CheckoutPage from '../views/CheckoutPage.vue'
 import PaymentPage from '../views/PaymentPage.vue'
+import Packages from '../views/Packages.vue'
 
 const routes = [
   {
@@ -13,7 +14,6 @@ const routes = [
     name: 'home',
     component: HomeView
   },
-   
   {
     path: '/login',
     name: 'login',
@@ -28,31 +28,27 @@ const routes = [
     path: '/mealplan',
     name: 'mealplan',
     component: MealPlanView,
-    
   },
-
- {
+  {
+    path: '/packages',   // ← ADD THIS
+    name: 'packages',
+    component: Packages,
+  },
+  {
     path: '/cart',
     name: 'cart',
     component: CartPage,
-    
   },
-
-   {
+  {
     path: '/checkout',
     name: 'checkout',
     component: CheckoutPage,
-    
   },
-  
-   {
+  {
     path: '/payment',
     name: 'payment',
     component: PaymentPage,
-    
   },
-
-  
 ]
 
 const router = createRouter({

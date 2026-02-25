@@ -1,4 +1,5 @@
 <script setup>
+
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '../components/NavBar.vue'
@@ -7,52 +8,47 @@ import Footer from '../components/Footer.vue'
 const router = useRouter()
 const goals = ref([])
 const loading = ref(true)
-const error = ref(null) 
+const errorMsg = ref(null)
+
+const API_URL = import.meta.env.VITE_API_URL
 
 const isAuthenticated = computed(() => {
   return !!localStorage.getItem('user')
 })
 
-const promptLogin = () => {
-  
-  router.push(`/login?redirect=${router.currentRoute.value.fullPath}`)
-}
 const fetchGoals = async () => {
   try {
     loading.value = true
-    error.value = null
-    const response = await fetch('http://localhost:2534/api/goal')
-    
-  
+    errorMsg.value = null
+    const response = await fetch(`${API_URL}/api/goal`)
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    
+
     const data = await response.json()
     goals.value = data
-  } catch (error) {
-    console.error('Error fetching goals:', error)
-    error.value = 'Failed to load goals. Please try again later.'
+  } catch (err) {
+    console.error('Error fetching goals:', err)
+    errorMsg.value = 'Failed to load goals. Please try again later.'
   } finally {
     loading.value = false
   }
 }
 
-const selectGoal = (goalName) => {
+const selectGoal = (goal) => {
   if (!isAuthenticated.value) {
-  
     router.push(`/login?redirect=${router.currentRoute.value.fullPath}`)
     return
   }
-  
- 
+  localStorage.setItem('selectedGoal', JSON.stringify(goal))
+  router.push(`/packages?goal_id=${goal.goal_id}`)
 }
 
-
-const handleKeydown = (event, goalName) => {
+const handleKeydown = (event, goal) => {
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
-    selectGoal(goalName)
+    selectGoal(goal)
   }
 }
 
@@ -115,12 +111,8 @@ onMounted(() => {
               <h2 class="goal-title">{{ goal.display_name }}</h2>
               <p class="goal-description">{{ goal.description }}</p>
 
-<button 
-  class="select-btn" 
-  @click="isAuthenticated ? selectGoal(goal.name) : promptLogin()"
->
-  {{ isAuthenticated ? 'Select This Plan' : 'Select meal plan' }}
-  <span class="btn-arrow">→</span>
+<button class="select-btn" @click="selectGoal(goal)">
+  Select This Plan <span class="btn-arrow">→</span>
 </button>
 
 <!-- Optional: Add a subtle tooltip or hint -->

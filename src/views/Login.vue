@@ -2,26 +2,51 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const username = ref('')
+const router = useRouter()
+const email = ref('')
 const password = ref('')
-//const errorMessage = ref('')
+const errorMessage = ref('')
+const loading = ref(false)
 const showPassword = ref(false)
 
-const router = useRouter()
+const API_URL = import.meta.env.VITE_API_URL
 
-// ✅ This must be OUTSIDE handleLogin
 const togglePassword = () => {
   showPassword.value = !showPassword.value
 }
 
-const handleLogin = () => {
-  // Store username if needed (optional)
-  if (username.value) {
-    localStorage.setItem('tempUsername', username.value)
+const handleLogin = async () => {
+  errorMessage.value = ''
+
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Please enter email and password.'
+    return
   }
-  
-  // Redirect to home page
-  router.push('/')
+
+  try {
+    loading.value = true
+    const res = await fetch(`${API_URL}/api/users/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value
+      })
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      errorMessage.value = data.error || 'Login failed.'
+      return
+    }
+
+    localStorage.setItem('user', JSON.stringify(data.user))
+    router.push('/mealplan')
+  } catch (err) {
+    errorMessage.value = 'Server error. Please try again.'
+  } finally {
+    loading.value = false
+  }
 }
 
 const goToRegister = () => {
@@ -36,27 +61,28 @@ const goToRegister = () => {
 
       <img src="@/assets/logo.png" alt="Healthy Habits Logo" class="logo" />
 
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+
       <input
-        type="text"
-        placeholder="Username or Email"
-        v-model="username"
+        type="email"
+        placeholder="Email"
+        v-model="email"
       />
 
       <div class="password-wrapper">
-  <input
-    :type="showPassword ? 'text' : 'password'"
-    placeholder="Password"
-    v-model="password"
-  />
-  <span class="toggle-password" @click="togglePassword">
-    {{ showPassword ? 'Hide' : 'Show' }}
-  </span>
-</div>
+        <input
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Password"
+          v-model="password"
+        />
+        <span class="toggle-password" @click="togglePassword">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </span>
+      </div>
 
-      <button class="primary-btn" @click="handleLogin">
-        Login
+      <button class="primary-btn" :disabled="loading" @click="handleLogin">
+        {{ loading ? 'Logging in...' : 'Login' }}
       </button>
-      
 
       <hr />
 
@@ -77,13 +103,12 @@ const goToRegister = () => {
 
 .auth-container {
   min-height: 100vh;
-  width: 100vw;              
+  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f4f6f5;
 }
-
 
 .auth-card {
   background: white;
@@ -110,6 +135,26 @@ input {
   font-size: 14px;
 }
 
+.password-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.password-wrapper input {
+  margin-bottom: 0;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 13px;
+  color: #2E7D32;
+  font-weight: 600;
+}
+
 .primary-btn,
 .secondary-btn {
   width: 100%;
@@ -127,8 +172,13 @@ input {
   margin-bottom: 15px;
 }
 
-.primary-btn:hover {
+.primary-btn:hover:not(:disabled) {
   background: #1b5e20;
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .secondary-btn {
@@ -158,22 +208,4 @@ hr {
   margin-bottom: 10px;
   font-size: 14px;
 }
-
-
-@media (max-width: 480px) {
-  .auth-card {
-    padding: 25px;
-    border-radius: 15px;
-  }
-
-  .auth-card h2 {
-    font-size: 20px;
-  }
-
-  .logo {
-    width: 120px;
-  }
-}
-
-
 </style>

@@ -1,18 +1,20 @@
-<script >
+<script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const name = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const errorMessage = ref('')
-const showPassword = ref(false)
-const showConfirmPassword = ref()
+const loading = ref(false)
 
-const router = useRouter()
+const API_URL = import.meta.env.VITE_API_URL
 
-const handleRegister = () => {
+const handleRegister = async () => {
+  errorMessage.value = ''
+
   if (!name.value || !email.value || !password.value || !confirmPassword.value) {
     errorMessage.value = 'Please complete all fields.'
     return
@@ -23,8 +25,32 @@ const handleRegister = () => {
     return
   }
 
-  alert('Registration successful! Please login.')
-  router.push('/')
+  try {
+    loading.value = true
+    const res = await fetch(`${API_URL}/api/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        address: 'Cape Town'
+      })
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      errorMessage.value = data.error || 'Registration failed.'
+      return
+    }
+
+    alert('Registration successful! Please login.')
+    router.push('/login')
+  } catch (err) {
+    errorMessage.value = 'Server error. Please try again.'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -40,30 +66,27 @@ const handleRegister = () => {
       <input type="password" placeholder="Password" v-model="password" />
       <input type="password" placeholder="Confirm Password" v-model="confirmPassword" />
 
-      <button class="primary-btn" @click="handleRegister">
-        Register
+      <button class="primary-btn" :disabled="loading" @click="handleRegister">
+        {{ loading ? 'Registering...' : 'Register' }}
       </button>
 
       <p class="redirect">
         Already have an account?
-        <span class="login-link" @click="router.push('/')">Login</span>
+        <span class="login-link" @click="router.push('/login')">Login</span>
       </p>
     </div>
   </div>
 </template>
 
-<style >
-
+<style scoped>
 .auth-container {
   min-height: 100vh;
-  width: 100vw;              
+  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f4f6f5;
 }
-
-
 
 .auth-card {
   background: white;
@@ -85,6 +108,7 @@ input {
   margin-bottom: 15px;
   border-radius: 10px;
   border: 1px solid #ccc;
+  font-size: 14px;
 }
 
 .primary-btn {
@@ -96,10 +120,17 @@ input {
   border-radius: 10px;
   cursor: pointer;
   margin-bottom: 15px;
+  font-size: 15px;
+  transition: 0.3s;
 }
 
-.primary-btn:hover {
+.primary-btn:hover:not(:disabled) {
   background: #1b5e20;
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .redirect {
@@ -121,9 +152,9 @@ input {
   text-decoration: underline;
 }
 
-
 .error {
   color: red;
   margin-bottom: 10px;
+  font-size: 14px;
 }
 </style>
