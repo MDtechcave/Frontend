@@ -11,6 +11,8 @@ import Admin from '@/views/Admin.vue'
 import UserManagement from '@/views/UserManagement.vue'
 import MealManagement from '@/views/MealManagement.vue'
 import Success from '../views/Success.vue'
+import Contact from '@/views/Contact.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
 const routes = [
   {
@@ -27,6 +29,12 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: Admin
+  },
+
+  {
+    path: '/sidebar',
+    name: 'SideBar',
+    component: Sidebar,
   },
   
   {
@@ -64,6 +72,11 @@ const routes = [
     path: '/payment',
     name: 'payment',
     component: PaymentPage,
+  },
+  {
+    path: '/contact',
+    name: 'Contact',
+    component: Contact,
   },
 {
   path: '/register',
