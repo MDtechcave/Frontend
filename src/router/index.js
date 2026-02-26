@@ -13,6 +13,8 @@ import Admin from '@/views/Admin.vue'
 import UserManagement from '@/views/UserManagement.vue'
 import MealManagement from '@/views/MealManagement.vue'
 import Success from '../views/Success.vue'
+import Contact from '@/views/Contact.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
 const routes = [
   // Public routes
@@ -38,6 +40,12 @@ const routes = [
     name: 'success',
     component: Success,
     meta: { public: true }
+  },
+
+  {
+    path: '/sidebar',
+    name: 'SideBar',
+    component: Sidebar,
   },
   
   // Customer routes (any authenticated user)
@@ -71,8 +79,21 @@ const routes = [
     component: PaymentPage,
     meta: { requiresAuth: true }
   },
+<<<<<<< HEAD
   
   // Admin-only routes
+=======
+  {
+    path: '/contact',
+    name: 'Contact',
+    component: Contact,
+  },
+{
+  path: '/register',
+  name: 'register',
+  component: Register,
+},
+>>>>>>> 78901fabb00427bae51bb40c1a2596b8228974aa
   {
     path: '/admin',
     name: 'admin',
