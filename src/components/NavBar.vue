@@ -1,45 +1,58 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
-const isAuthenticated = ref(false)
-const userName = ref('')  // ✅ Store user's name
+const route = useRoute()
 
-const checkAuth = () => {
-  const user = localStorage.getItem('user')
+const authTick = ref(0) // tiny trigger to re-evaluate computed when storage changes
 
-  if (user) {
-    const userData = JSON.parse(user)
-    isAuthenticated.value = !!userData?.id
-    userName.value = userData?.name || 'User'  // ✅ Get name from stored user
-  } else {
-    isAuthenticated.value = false
-    userName.value = ''
+const user = computed(() => {
+  authTick.value // dependency
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null')
+  } catch {
+    return null
   }
-}
+})
+
+const isAuthenticated = computed(() => !!user.value?.id || !!user.value?.email)
+const userName = computed(() => user.value?.name || 'User')
+
+const syncAuth = () => authTick.value++
 
 const handleLogout = () => {
   localStorage.removeItem('user')
-  isAuthenticated.value = false
-  userName.value = ''  // ✅ Clear name on logout
+  localStorage.removeItem('token') // safe even if you don't use it
+  syncAuth()
   router.push('/')
 }
 
 const handleLogin = () => router.push('/login')
 const handleSignup = () => router.push('/register')
 
-// ✅ Re-check auth when component is activated (e.g., after login redirect)
-onMounted(checkAuth)
+// ✅ Re-check on page navigation (works after login redirect)
+onMounted(() => {
+  syncAuth()
+
+  // ✅ Re-check if localStorage changes (multi-tab support)
+  window.addEventListener('storage', syncAuth)
+
+  // ✅ Re-check when route changes in this tab
+  router.afterEach(() => syncAuth())
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', syncAuth)
+})
 </script>
 
 <template>
   <nav class="navbar">
     <div class="nav-container">
-
       <!-- Logo -->
       <router-link to="/" class="nav-logo">
-        <img src="@/assets/logo.png" class="logo-img" alt="Logo">
+        <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
         Healthy Habits
       </router-link>
 
@@ -53,33 +66,25 @@ onMounted(checkAuth)
 
       <!-- Auth Section -->
       <div class="nav-auth">
-
-        <!-- ✅ Show when logged in -->
         <template v-if="isAuthenticated">
-          <span class="user-greeting">Hi, {{ userName }} </span>
-          
-          <button class="nav-btn logout-btn" @click="handleLogout">
-            Logout
-          </button>
+          <span class="user-greeting">Hi, {{ userName }}</span>
+
+          <!-- Optional: quick account link -->
+          <router-link to="/account" class="account-link">Account</router-link>
+
+          <button class="nav-btn logout-btn" @click="handleLogout">Logout</button>
         </template>
 
-        <!-- ✅ Show when NOT logged in -->
         <template v-else>
-          <button class="nav-btn login-btn" @click="handleLogin">
-            Login
-          </button>
-          <button class="nav-btn register-btn" @click="handleSignup">
-            Sign Up
-          </button>
+          <button class="nav-btn login-btn" @click="handleLogin">Login</button>
+          <button class="nav-btn register-btn" @click="handleSignup">Sign Up</button>
         </template>
-
       </div>
-
     </div>
   </nav>
 </template>
 
-<style scoped>
+<style>
 .navbar {
   position: sticky;
   top: 0;
@@ -178,7 +183,6 @@ onMounted(checkAuth)
   background: #c62828;
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .nav-container {
     flex-wrap: wrap;
@@ -197,4 +201,12 @@ onMounted(checkAuth)
     justify-content: center;
   }
 }
+.account-link {
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2E7D32;
+  margin-right: 6px;
+}
+.account-link:hover { text-decoration: underline; }
 </style>
