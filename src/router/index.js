@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
+// Views
 import HomeView from '../views/HomeView.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
@@ -13,6 +15,7 @@ import MealManagement from '@/views/MealManagement.vue'
 import Success from '../views/Success.vue'
 
 const routes = [
+  // Public routes
   {
     path: '/',
     name: 'home',
@@ -21,59 +24,72 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: Login
+    component: Login,
+    
   },
   {
-    path: '/admin',
-    name: 'admin',
-    component: Admin
+    path: '/register',
+    name: 'register',
+    component: Register,
+    
+  },
+  {
+    path: '/success',
+    name: 'success',
+    component: Success,
+    meta: { public: true }
   },
   
+  // Customer routes (any authenticated user)
   {
     path: '/mealplan',
     name: 'mealplan',
     component: MealPlanView,
-  },
-
-  {
-    path: '/user',
-    name: 'user',
-    component: UserManagement,
+    meta: { requiresAuth: true }
   },
   {
-    path: '/meal',
-    name: 'meal',
-    component: MealManagement,
-  },
-  {
-    path: '/packages',   
+    path: '/packages',
     name: 'packages',
     component: Packages,
+    meta: { requiresAuth: true }
   },
   {
     path: '/cart',
     name: 'cart',
     component: CartPage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/checkout',
     name: 'checkout',
     component: CheckoutPage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/payment',
     name: 'payment',
     component: PaymentPage,
+    meta: { requiresAuth: true }
   },
-{
-  path: '/register',
-  name: 'register',
-  component: Register,
-},
+  
+  // Admin-only routes
   {
-    path: '/success',
-    name: 'success',
-     component: Success,
+    path: '/admin',
+    name: 'admin',
+    component: Admin,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/users',
+    name: 'userManagement',
+    component: UserManagement,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/meals',
+    name: 'mealManagement',
+    component: MealManagement,
+    meta: { requiresAuth: true, role: 'admin' }
   },
 ]
 
@@ -82,15 +98,49 @@ const router = createRouter({
   routes
 })
 
-// 🔐 Route Guard
+// 🔐 Navigation Guard
 router.beforeEach((to, from, next) => {
-  const user = localStorage.getItem('user')
-
-  if (to.meta.requiresAuth && !user) {
-    next('/login')
-  } else {
-    next()
+  const user = JSON.parse(localStorage.getItem('user'))
+  const isAuthenticated = !!user
+  const userRole = user?.role?.toLowerCase()
+  
+  // ✅ Public routes - anyone can access
+  if (to.meta.public) {
+    // If already logged in, redirect to appropriate dashboard
+    if (isAuthenticated) {
+      if (userRole === 'admin') {
+        next('/admin')
+      } else {
+        next('/')
+      }
+    } else {
+      next()
+    }
+    return
   }
+  
+  // ✅ Protected routes - require authentication
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login')
+    return
+  }
+  
+  // ✅ Admin-only routes - check role
+  if (to.meta.role === 'admin' && userRole !== 'admin') {
+    // Not an admin - redirect to customer home
+    next('/')
+    return
+  }
+  
+  // ✅ Customer trying to access admin routes
+  if (to.meta.role && userRole && to.meta.role !== userRole) {
+    // Redirect to their appropriate dashboard
+    next(userRole === 'admin' ? '/admin' : '/')
+    return
+  }
+  
+  // ✅ All checks passed
+  next()
 })
 
 export default router

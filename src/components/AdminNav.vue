@@ -46,9 +46,8 @@ onMounted(checkAuth)
       <!-- Navigation Links -->
       <div class="nav-links">
         <router-link to="/admin" class="nav-link">Dashboard</router-link>
-        <router-link to="/user" class="nav-link">User Management</router-link>
-        <router-link to="/meal" class="nav-link">Meal Management</router-link>
-        <router-link to="/cart" class="nav-link">Cart</router-link>
+        <router-link to="/admin/users" class="nav-link">User Management</router-link>
+        <router-link to="/admin/meals" class="nav-link">Meal Management</router-link>
       </div>
 
       <!-- Auth Section -->
