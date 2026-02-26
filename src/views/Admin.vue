@@ -3,6 +3,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import AdminNav from '@/components/AdminNav.vue'
 
 const router = useRouter()
 
@@ -93,40 +94,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="admin-layout">
-    
-    <!-- ✅ Admin Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <img src="@/assets/logo.png" alt="Logo" class="sidebar-logo" />
-        <h3>Healthy Habits</h3>
-        <span class="admin-badge">ADMIN</span>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <router-link to="/admin" class="nav-item active">
-          📊 Dashboard
-        </router-link>
-        <button @click="goToUsers" class="nav-item">
-          👥 Customers
-        </button>
-        <button @click="goToMeals" class="nav-item">
-          🍽️ Meals
-        </button>
-        <button @click="goToOrders" class="nav-item">
-          📦 All Orders
-        </button>
-        <button @click="goToSettings" class="nav-item">
-          ⚙️ Settings
-        </button>
-      </nav>
-      
-      <div class="sidebar-footer">
-        <button @click="handleLogout" class="logout-btn">
-          🔐 Logout
-        </button>
-      </div>
-    </aside>
+  <AdminNav />
 
     <!-- ✅ Main Content Area -->
     <main class="main-content">
@@ -134,17 +102,17 @@ onMounted(() => {
       <!-- Header -->
       <header class="admin-header">
         <div>
-          <h1>Dashboard</h1>
-          <p class="subtitle">Overview of your business</p>
+          <h1>Admin Dashboard</h1>
+          <p class="subtitle">Overview of Healthy Habits</p>
         </div>
         <div class="user-info">
-          <span>👋 Welcome, {{ adminName }}</span>
+          <span>Welcome, {{ adminName }}</span>
         </div>
       </header>
 
       <!-- Error Message -->
       <div v-if="error" class="error-banner">
-        ⚠️ {{ error }}
+        {{ error }}
         <button @click="fetchDashboardData">Retry</button>
       </div>
 
@@ -159,7 +127,7 @@ onMounted(() => {
         
         <!-- Total Customers -->
         <div class="stat-card customers">
-          <div class="stat-icon">👥</div>
+          <div class="stat-icon"></div>
           <div class="stat-details">
             <h3>Total Customers</h3>
             <p class="stat-number">{{ stats.totalCustomers }}</p>
@@ -169,7 +137,7 @@ onMounted(() => {
 
         <!-- Total Meals -->
         <div class="stat-card meals">
-          <div class="stat-icon">🍽️</div>
+          <div class="stat-icon"></div>
           <div class="stat-details">
             <h3>Total Meals</h3>
             <p class="stat-number">{{ stats.totalMeals }}</p>
@@ -179,7 +147,7 @@ onMounted(() => {
 
         <!-- Total Orders -->
         <div class="stat-card orders">
-          <div class="stat-icon">📦</div>
+          <div class="stat-icon"></div>
           <div class="stat-details">
             <h3>Total Orders</h3>
             <p class="stat-number">{{ stats.totalOrders }}</p>
@@ -192,7 +160,7 @@ onMounted(() => {
       <!-- ✅ Recent Orders Table -->
       <section class="recent-orders-section" v-if="!isLoading">
         <div class="section-header">
-          <h2>🕐 Recent Orders</h2>
+          <h2> Recent Orders</h2>
           <button @click="goToOrders" class="view-all-btn">
             View All →
           </button>
@@ -236,7 +204,7 @@ onMounted(() => {
       </section>
 
     </main>
-  </div>
+  <
 </template>
 
 <style scoped>

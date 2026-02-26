@@ -8,6 +8,8 @@ import CheckoutPage from '../views/CheckoutPage.vue'
 import PaymentPage from '../views/PaymentPage.vue'
 import Packages from '../views/Packages.vue'
 import Admin from '@/views/Admin.vue'
+import UserManagement from '@/views/UserManagement.vue'
+import MealManagement from '@/views/MealManagement.vue'
 
 const routes = [
   {
@@ -25,15 +27,22 @@ const routes = [
     name: 'admin',
     component: Admin
   },
-  {
-    path: '/register',
-    name: 'register',
-    component: Register
-  },
+  
   {
     path: '/mealplan',
     name: 'mealplan',
     component: MealPlanView,
+  },
+
+  {
+    path: '/user',
+    name: 'user',
+    component: UserManagement,
+  },
+  {
+    path: '/meal',
+    name: 'meal',
+    component: MealManagement,
   },
   {
     path: '/packages',   // ← ADD THIS
@@ -55,6 +64,11 @@ const routes = [
     name: 'payment',
     component: PaymentPage,
   },
+{
+  path: '/register',
+  name: 'register',
+  component: Register,
+},
 ]
 
 const router = createRouter({

@@ -29,7 +29,7 @@ const handleLogout = () => {
 const handleLogin = () => router.push('/login')
 const handleSignup = () => router.push('/register')
 
-// ✅ Re-check auth when component is activated (e.g., after login redirect)
+
 onMounted(checkAuth)
 </script>
 
@@ -45,16 +45,16 @@ onMounted(checkAuth)
 
       <!-- Navigation Links -->
       <div class="nav-links">
-        <router-link to="/" class="nav-link">Home</router-link>
-        <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
-        <router-link to="/contact" class="nav-link">Contact</router-link>
+        <router-link to="/admin" class="nav-link">Dashboard</router-link>
+        <router-link to="/user" class="nav-link">User Management</router-link>
+        <router-link to="/meal" class="nav-link">Meal Management</router-link>
         <router-link to="/cart" class="nav-link">Cart</router-link>
       </div>
 
       <!-- Auth Section -->
       <div class="nav-auth">
 
-        <!-- ✅ Show when logged in -->
+        <!-- Show when logged in -->
         <template v-if="isAuthenticated">
           <span class="user-greeting">Hi, {{ userName }} 👋</span>
           
@@ -63,7 +63,7 @@ onMounted(checkAuth)
           </button>
         </template>
 
-        <!-- ✅ Show when NOT logged in -->
+        <!-- Show when NOT logged in -->
         <template v-else>
           <button class="nav-btn login-btn" @click="handleLogin">
             Login
