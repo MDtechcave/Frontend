@@ -79,10 +79,6 @@ const routes = [
     component: PaymentPage,
     meta: { requiresAuth: true }
   },
-<<<<<<< HEAD
-  
-  // Admin-only routes
-=======
   {
     path: '/contact',
     name: 'Contact',
@@ -93,7 +89,6 @@ const routes = [
   name: 'register',
   component: Register,
 },
->>>>>>> 78901fabb00427bae51bb40c1a2596b8228974aa
   {
     path: '/admin',
     name: 'admin',
