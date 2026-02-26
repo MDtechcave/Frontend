@@ -70,14 +70,13 @@ const goToRegister = () => {
   <div class="auth-container">
     <div class="auth-card">
       <h2>Welcome Back!</h2>
-
-      <img src="@/assets/logo.png" alt="Healthy Habits Logo" class="logo" />
+      <img src="@/assets/logo.png" alt="Logo" class="logo" />
 
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
       <input
         type="email"
-        placeholder="Email"
+        placeholder="Email address"
         v-model="email"
         :disabled="loading"
         @keyup.enter="handleLogin"
@@ -103,7 +102,6 @@ const goToRegister = () => {
       <hr />
 
       <p class="redirect-text">Don't have an account?</p>
-
       <button class="secondary-btn" @click="goToRegister" :disabled="loading">
         Sign Up
       </button>
@@ -115,22 +113,12 @@ const goToRegister = () => {
 .logo { width: 140px; margin-bottom: 20px; }
 
 .auth-container {
-  min-height: 100vh;
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #f4f6f5;
-  padding: 20px;
+  min-height: 100vh; display: flex; justify-content: center;
+  align-items: center; background: #f4f6f5; padding: 20px;
 }
-
 .auth-card {
-  background: white;
-  padding: 40px;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  background: white; padding: 40px; border-radius: 20px;
+  width: 100%; max-width: 420px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   text-align: center;
 }
 
@@ -152,15 +140,9 @@ input:disabled { background-color: #f5f5f5; cursor: not-allowed; }
 .password-wrapper input { margin-bottom: 0; padding-right: 60px; }
 
 .toggle-password {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 13px;
-  color: #2E7D32;
-  font-weight: 600;
-  user-select: none;
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%); cursor: pointer;
+  font-size: 13px; color: #2E7D32; font-weight: 600;
 }
 
 .toggle-password:hover { text-decoration: underline; }
@@ -186,12 +168,8 @@ input:disabled { background-color: #f5f5f5; cursor: not-allowed; }
 hr { margin: 20px 0; border: none; height: 1px; background: #eee; }
 
 .error {
-  color: #d32f2f;
-  margin-bottom: 15px;
-  font-size: 14px;
-  background: #ffebee;
-  padding: 10px;
-  border-radius: 8px;
+  color: #d32f2f; margin-bottom: 15px; font-size: 14px;
+  background: #ffebee; padding: 10px; border-radius: 8px;
   border-left: 4px solid #d32f2f;
 }
 

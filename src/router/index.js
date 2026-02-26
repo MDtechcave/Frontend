@@ -108,6 +108,8 @@
 
 // export default router
 import { createRouter, createWebHistory } from 'vue-router'
+
+// Views
 import HomeView from '../views/HomeView.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'

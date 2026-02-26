@@ -15,7 +15,7 @@ const fallbackImage = 'https://images.unsplash.com/photo-1600891964599-f61ba0e24
 function getMealImage(meal) {
   if (meal && meal.image_url) {
     const trimmedUrl = meal.image_url.trim()
-    console.log(`🖼️ ${meal.meal_name}:`, trimmedUrl)
+    console.log(`${meal.meal_name}:`, trimmedUrl)
     return trimmedUrl
   }
   return fallbackImage
