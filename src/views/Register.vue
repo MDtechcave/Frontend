@@ -9,6 +9,9 @@ const password = ref('')
 const confirmPassword = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
+const street = ref('')
+const city = ref('')
+const postalCode = ref('')
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -34,7 +37,7 @@ const handleRegister = async () => {
         name: name.value,
         email: email.value,
         password: password.value,
-        address: 'Cape Town'
+        address: `${street.value}, ${city.value}, ${postalCode.value}`
       })
     })
 
@@ -65,6 +68,9 @@ const handleRegister = async () => {
       <input type="email" placeholder="Email" v-model="email" />
       <input type="password" placeholder="Password" v-model="password" />
       <input type="password" placeholder="Confirm Password" v-model="confirmPassword" />
+      <input type="text" placeholder="Street Address e.g. 12 Long Street" v-model="street" />
+      <input type="text" placeholder="City e.g. Cape Town" v-model="city" />
+      <input type="text" placeholder="Postal Code e.g. 8001" v-model="postalCode" />
 
       <button class="primary-btn" :disabled="loading" @click="handleRegister">
         {{ loading ? 'Registering...' : 'Register' }}

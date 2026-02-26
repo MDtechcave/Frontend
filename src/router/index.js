@@ -10,6 +10,7 @@ import Packages from '../views/Packages.vue'
 import Admin from '@/views/Admin.vue'
 import UserManagement from '@/views/UserManagement.vue'
 import MealManagement from '@/views/MealManagement.vue'
+import Success from '../views/Success.vue'
 
 const routes = [
   {
@@ -45,7 +46,7 @@ const routes = [
     component: MealManagement,
   },
   {
-    path: '/packages',   // ← ADD THIS
+    path: '/packages',   
     name: 'packages',
     component: Packages,
   },
@@ -69,6 +70,11 @@ const routes = [
   name: 'register',
   component: Register,
 },
+  {
+    path: '/success',
+    name: 'success',
+     component: Success,
+  },
 ]
 
 const router = createRouter({
