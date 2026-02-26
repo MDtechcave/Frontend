@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import NavBar from '../components/NavBar.vue'
 import Footer from '../components/Footer.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
 const route = useRoute()
 const meals = ref([])
@@ -38,6 +39,7 @@ onMounted(() => {
 <template>
   <div class="meal-plans-page">
     <NavBar />
+    <Sidebar />
 
     <section class="plans-hero">
       <h1>{{ goalDisplayName }} Meal Plan</h1>
