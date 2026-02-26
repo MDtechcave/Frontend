@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '../components/NavBar.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
 const router = useRouter()
 const orderCode = ref('')
@@ -14,6 +15,7 @@ onMounted(() => {
 
 <template>
   <NavBar />
+  <Sidebar />
   <div class="success-page">
     <div class="success-card">
       <div class="icon">✅</div>
