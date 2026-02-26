@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import NavBar from '../components/NavBar.vue'
 import Footer from '../components/Footer.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -67,6 +68,7 @@ const addToCart = async (pkg) => {
 
 <template>
   <NavBar />
+  <Sidebar />
   <div class="packages-page">
     <h1>Choose Your Package</h1>
 
