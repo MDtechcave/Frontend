@@ -42,11 +42,25 @@ const handleLogin = async () => {
       return
     }
 
-    // Save user to localStorage
-    localStorage.setItem('user', JSON.stringify(data.user))
+    const user = data.user
+    
+    // 🔧 TEMPORARY WORKAROUND: Use email as ID (NOT ideal)
+    // This is just to make NavBar work until backend is fixed
+    const userToStore = {
+      id: user.id || user.user_id || user.email,  // ← Email as fallback ID
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+    
+    console.log('⚠️ Storing user (using email as ID):', userToStore)
+    localStorage.setItem('user', JSON.stringify(userToStore))
+    
+    // Force NavBar update
+    window.dispatchEvent(new Event('storage'))
     
     // Redirect based on role
-    const userRole = data.user.role?.toLowerCase()
+    const userRole = user.role?.toLowerCase()
     if (userRole === 'admin') {
       router.push('/admin')
     } else {

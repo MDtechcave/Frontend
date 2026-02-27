@@ -1,188 +1,62 @@
-<!-- <template>
-  
-  <div class="cart-page">
-    <h1>Your Cart</h1>
-
-    <div v-if="cart.length === 0">
-      <p>Your cart is empty.</p>
-    </div>
-
-    <div v-for="(item, index) in cart" :key="index" class="cart-item">
-      <h3>{{ item.meal_name }}</h3>
-      <p>R{{ item.price }}</p>
-      <button @click="removeItem(index)" class="remove-btn">
-        Remove
-      </button>
-    </div>
-
-    <h2>Total: R{{ total }}</h2>
-
-    <button v-if="cart.length > 0" class="checkout-btn" @click="goToCheckout">
-      Proceed to Checkout
-    </button>
-  </div>
-</template>
-
-<!-- <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-
-const cart = ref([
-  {meal_name: "Chicken Bowl", price: "85"},
-  {meal_name: "Chicken Bowl", price: "85"},
-]);
-
-const total = computed(() =>
-  cart.value.reduce((sum, item) => sum + Number(item.price), 0)
-);
-
-function removeItem(index) {
-  cart.value.splice(index, 1);
-  localStorage.setItem("cart", JSON.stringify(cart.value));
-}
-
-function goToCheckout() {
-  router.push("/checkout");
-}
-</script>
- -->
-
-<!-- <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-const cart = ref([]);
-
-onMounted(() => {
-  const saved = localStorage.getItem("cart");
-  const parsed = saved ? JSON.parse(saved) : null;
-
-  // If nothing is saved yet, use demo items (so your UI + button shows)
-  cart.value =
-    Array.isArray(parsed) && parsed.length
-      ? parsed
-      : [
-          { meal_name: "Chicken Bowl", price: "85" },
-          { meal_name: "Chicken Bowl", price: "85" },
-        ];
-
-  // Keep it consistent: save whatever we’re displaying
-  localStorage.setItem("cart", JSON.stringify(cart.value));
-});
-
-const total = computed(() =>
-  cart.value.reduce((sum, item) => sum + Number(item.price), 0)
-);
-
-function removeItem(index) {
-  cart.value.splice(index, 1);
-  localStorage.setItem("cart", JSON.stringify(cart.value));
-}
-
-function goToCheckout() {
-  router.push("/checkout");
-}
-</script> 
-
-<style scoped>
-.cart-page {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-}
-
-.cart-page h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #2E7D32;
-}
-
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-  padding: 15px 0;
-}
-
-.price {
-  font-weight: bold;
-  color: #333;
-}
-
-/* Remove Button */
-.remove-btn {
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s ease;
-}
-
-.remove-btn:hover {
-  background-color: #b71c1c;
-  transform: scale(1.05);
-}
-
-/* Total Section */
-.total {
-  text-align: right;
-  margin-top: 20px;
-  color: #2E7D32;
-}
-
-/* Checkout Button */
-.checkout-btn {
-  display: block;
-  margin-left: auto;
-  margin-top: 20px;
-  background-color: #F57C00;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 25px;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.checkout-btn:hover {
-  background-color: #ef6c00;
-  transform: scale(1.05);
-}
-</style> -->
 <template>
-  <div class="cart-page">
-    <h1>Your Cart</h1>
-
-    <div v-if="cart.length === 0">
-      <p>Your cart is empty.</p>
-    </div>
-
-    <div v-else class="cart-item">
-      <div>
-        <h3>{{ cart[0].package_name }}</h3>
-        <p class="muted">7-day plan</p>
+  <div class="cart-wrapper">
+    <div class="cart-card">
+      <div class="cart-header">
+        <h2>Cart</h2>
       </div>
 
-      <div class="right">
-        <p class="price">R{{ cart[0].price }}</p>
-        <button @click="clearCart" class="remove-btn">Remove</button>
+      <!-- CART ITEMS -->
+      <div
+        v-for="(item, index) in cart"
+        :key="index"
+        class="cart-item"
+      >
+        <img
+          :src="item.image || defaultImage"
+          class="plan-image"
+        />
+
+        <div class="item-info">
+          <h3>{{ item.package_name }}</h3>
+          <p class="price">R{{ item.price }}</p>
+        </div>
+
+        <button class="remove-btn" @click="removeItem(index)">
+          ✕
+        </button>
+      </div>
+
+      <!-- SUMMARY -->
+      <div v-if="cart.length" class="summary">
+        <div class="row">
+          <span>Subtotal</span>
+          <span>R{{ subtotal }}</span>
+        </div>
+
+        <div class="row">
+          <span>Delivery</span>
+          <span>R{{ delivery }}</span>
+        </div>
+
+        <div class="row total">
+          <span>Total</span>
+          <span>R{{ total }}</span>
+        </div>
+      </div>
+
+      <!-- CHECKOUT -->
+      <button
+        v-if="cart.length"
+        class="checkout-btn"
+        @click="goToCheckout"
+      >
+        CHECK OUT
+      </button>
+
+      <div v-if="!cart.length" class="empty">
+        Your cart is empty 🛒
       </div>
     </div>
-
-    <h2 v-if="cart.length">Total: R{{ total }}</h2>
-
-    <button v-if="cart.length" class="checkout-btn" @click="goToCheckout">
-      Proceed to Checkout
-    </button>
   </div>
 </template>
 
@@ -192,19 +66,27 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const cart = ref([]);
+const delivery = 35;
+const defaultImage =
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c  ";
 
 onMounted(() => {
   const saved = localStorage.getItem("cart");
   cart.value = saved ? JSON.parse(saved) : [];
 });
 
-const total = computed(() =>
+const subtotal = computed(() =>
   cart.value.reduce((sum, item) => sum + Number(item.price || 0), 0)
 );
 
-function clearCart() {
-  cart.value = [];
-  localStorage.removeItem("cart");
+// ✅ Total = subtotal + delivery (discount removed - handled in checkout)
+const total = computed(() =>
+  subtotal.value + delivery
+);
+
+function removeItem(index) {
+  cart.value.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart.value));
 }
 
 function goToCheckout() {
@@ -213,51 +95,114 @@ function goToCheckout() {
 </script>
 
 <style scoped>
-.cart-page {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
+.cart-wrapper {
+  background: #f3f4f6;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 40px 15px;
 }
+
+.cart-card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: 25px;
+  padding: 25px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+.cart-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
 .cart-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
-  padding: 15px 0;
+  margin-bottom: 18px;
+  gap: 15px;
 }
-.right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+
+.plan-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  object-fit: cover;
 }
+
+.item-info {
+  flex: 1;
+}
+
+.item-info h3 {
+  font-size: 0.95rem;
+  margin: 0;
+  color: #1f2937;
+}
+
 .price {
-  font-weight: bold;
-  color: #333;
-}
-.muted {
-  color: #777;
-  font-size: 0.9rem;
-  margin-top: 4px;
-}
-.remove-btn {
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
+  margin-top: 5px;
+  color: #16a34a;
   font-weight: 600;
 }
-.checkout-btn {
-  display: block;
-  margin-left: auto;
+
+.remove-btn {
+  background: #ef4444;
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: #dc2626;
+}
+
+.summary {
   margin-top: 20px;
-  background-color: #F57C00;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+.checkout-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: #166534;
   color: white;
   border: none;
-  padding: 12px 25px;
-  border-radius: 25px;
-  font-weight: 700;
+  border-radius: 18px;
+  font-weight: bold;
   cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background: #14532d;
+  transform: translateY(-2px);
+}
+
+.empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px 0;
 }
 </style>

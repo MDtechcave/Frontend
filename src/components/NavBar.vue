@@ -1,36 +1,78 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const isAuthenticated = ref(false)
-const userName = ref('')  // ✅ Store user's name
+const userName = ref('')
 
+// ✅ Check auth state from localStorage
 const checkAuth = () => {
   const user = localStorage.getItem('user')
-
+  
+  console.log('🔍 NavBar checkAuth - localStorage user:', user)
+  
   if (user) {
-    const userData = JSON.parse(user)
-    isAuthenticated.value = !!userData?.id
-    userName.value = userData?.name || 'User'  // ✅ Get name from stored user
+    try {
+      const userData = JSON.parse(user)
+      console.log('✅ Parsed userData:', userData)
+      console.log('✅ Has id?', !!userData?.id)
+      
+      // ✅ Must have 'id' to be considered logged in
+      isAuthenticated.value = !!userData?.id
+      userName.value = userData?.name || userData?.username || 'User'
+      
+      console.log('✅ isAuthenticated:', isAuthenticated.value)
+      console.log('✅ userName:', userName.value)
+    } catch (e) {
+      console.error('❌ Failed to parse user:', e)
+      isAuthenticated.value = false
+      userName.value = ''
+    }
   } else {
+    console.log('⚠️ No user in localStorage')
     isAuthenticated.value = false
     userName.value = ''
   }
 }
 
+// ✅ Listen for localStorage changes
+const handleStorageChange = (e) => {
+  console.log('🔄 Storage event:', e.key, e.newValue)
+  if (e.key === 'user' || e.key === 'token') {
+    checkAuth()
+  }
+}
+
+// ✅ Logout handler
 const handleLogout = () => {
   localStorage.removeItem('user')
+  localStorage.removeItem('token')
   isAuthenticated.value = false
-  userName.value = ''  // ✅ Clear name on logout
+  userName.value = ''
+  
+  window.dispatchEvent(new Event('storage'))
   router.push('/')
 }
 
 const handleLogin = () => router.push('/login')
 const handleSignup = () => router.push('/register')
 
-// ✅ Re-check auth when component is activated (e.g., after login redirect)
-onMounted(checkAuth)
+// ✅ Lifecycle
+onMounted(() => {
+  checkAuth()
+  window.addEventListener('storage', handleStorageChange)
+  
+  // ✅ Check auth on every route change
+  router.afterEach(() => {
+    console.log('🔄 Route changed, checking auth...')
+    setTimeout(checkAuth, 100) // Small delay to ensure storage is updated
+  })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('storage', handleStorageChange)
+})
 </script>
 
 <template>
@@ -49,21 +91,21 @@ onMounted(checkAuth)
         <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
         <router-link to="/contact" class="nav-link">Contact</router-link>
         <router-link to="/cart" class="nav-link">Cart</router-link>
+        <router-link to="/profile" class="nav-link">Profile</router-link>
       </div>
 
       <!-- Auth Section -->
       <div class="nav-auth">
 
-        <!-- ✅ Show when logged in -->
+        <!-- ✅ LOGGED IN: Show welcome + logout -->
         <template v-if="isAuthenticated">
-          <span class="user-greeting">Hi, {{ userName }} </span>
-          
+          <span class="user-greeting">Welcome, {{ userName }} 👋</span>
           <button class="nav-btn logout-btn" @click="handleLogout">
             Logout
           </button>
         </template>
 
-        <!-- ✅ Show when NOT logged in -->
+        <!-- ✅ NOT LOGGED IN: Show login + signup -->
         <template v-else>
           <button class="nav-btn login-btn" @click="handleLogin">
             Login
@@ -132,7 +174,6 @@ onMounted(checkAuth)
   gap: 10px;
 }
 
-/* ✅ User Greeting Style */
 .user-greeting {
   font-size: 14px;
   color: #555;
@@ -184,13 +225,11 @@ onMounted(checkAuth)
     flex-wrap: wrap;
     gap: 15px;
   }
-
   .nav-links {
     width: 100%;
     justify-content: center;
     order: 3;
   }
-
   .nav-auth {
     order: 2;
     width: 100%;

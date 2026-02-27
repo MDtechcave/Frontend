@@ -15,6 +15,7 @@ import MealManagement from '@/views/MealManagement.vue'
 import Success from '../views/Success.vue'
 import Contact from '@/views/Contact.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import Profile from '@/views/Profile.vue'
 
 const routes = [
   // Public routes
@@ -35,17 +36,17 @@ const routes = [
     component: Register,
     
   },
+   {
+    path: '/profile',
+    name: 'profile',
+    component: Profile,
+    
+  },
   {
     path: '/success',
     name: 'success',
     component: Success,
     meta: { public: true }
-  },
-
-  {
-    path: '/sidebar',
-    name: 'SideBar',
-    component: Sidebar,
   },
   
   // Customer routes (any authenticated user)
