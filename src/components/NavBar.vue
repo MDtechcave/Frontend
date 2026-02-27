@@ -5,10 +5,10 @@ import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 
-const authTick = ref(0) // tiny trigger to re-evaluate computed when storage changes
+const authTick = ref(0) // small trigger to re-check localStorage when it changes
 
 const user = computed(() => {
-  authTick.value // dependency
+  authTick.value
   try {
     return JSON.parse(localStorage.getItem('user') || 'null')
   } catch {
@@ -22,8 +22,9 @@ const userName = computed(() => user.value?.name || 'User')
 const syncAuth = () => authTick.value++
 
 const handleLogout = () => {
+  // clear user + token then go home
   localStorage.removeItem('user')
-  localStorage.removeItem('token') // safe even if you don't use it
+  localStorage.removeItem('token')
   syncAuth()
   router.push('/')
 }
@@ -31,14 +32,9 @@ const handleLogout = () => {
 const handleLogin = () => router.push('/login')
 const handleSignup = () => router.push('/register')
 
-// ✅ Re-check on page navigation (works after login redirect)
 onMounted(() => {
   syncAuth()
-
-  // ✅ Re-check if localStorage changes (multi-tab support)
   window.addEventListener('storage', syncAuth)
-
-  // ✅ Re-check when route changes in this tab
   router.afterEach(() => syncAuth())
 })
 
@@ -50,13 +46,11 @@ onBeforeUnmount(() => {
 <template>
   <nav class="navbar">
     <div class="nav-container">
-      <!-- Logo -->
       <router-link to="/" class="nav-logo">
         <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
         Healthy Habits
       </router-link>
 
-      <!-- Navigation Links -->
       <div class="nav-links">
         <router-link to="/" class="nav-link">Home</router-link>
         <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
@@ -64,14 +58,10 @@ onBeforeUnmount(() => {
         <router-link to="/cart" class="nav-link">Cart</router-link>
       </div>
 
-      <!-- Auth Section -->
       <div class="nav-auth">
         <template v-if="isAuthenticated">
           <span class="user-greeting">Hi, {{ userName }}</span>
-
-          <!-- Optional: quick account link -->
           <router-link to="/account" class="account-link">Account</router-link>
-
           <button class="nav-btn logout-btn" @click="handleLogout">Logout</button>
         </template>
 
@@ -85,10 +75,15 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
+/*
+  fix note:
+  navbar stays sticky and clean.
+  on smaller screens i wrap links + auth nicely so it doesn't squish.
+*/
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 2000; /* below sidebar overlay/drawer, above page */
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -101,6 +96,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 14px; /* helps when it wraps */
 }
 
 .nav-logo {
@@ -108,23 +104,28 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 800;
   color: #2E7D32;
+  white-space: nowrap;
 }
 
 .logo-img {
   width: 40px;
+  height: 40px;
+  object-fit: contain;
 }
 
 .nav-links {
   display: flex;
-  gap: 25px;
+  gap: 22px;
+  flex-wrap: wrap; /* ✅ makes half-screen behave */
+  justify-content: center;
 }
 
 .nav-link {
   text-decoration: none;
   color: #333;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .nav-link:hover {
@@ -135,14 +136,15 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap; /* ✅ prevents squish */
+  justify-content: flex-end;
 }
 
-/* ✅ User Greeting Style */
+/* greeting */
 .user-greeting {
   font-size: 14px;
   color: #555;
-  margin-right: 8px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .nav-btn {
@@ -151,7 +153,7 @@ onBeforeUnmount(() => {
   border: none;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   transition: 0.2s;
 }
 
@@ -183,16 +185,27 @@ onBeforeUnmount(() => {
   background: #c62828;
 }
 
+.account-link {
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2E7D32;
+}
+.account-link:hover { text-decoration: underline; }
+
+/* ✅ mobile layout */
 @media (max-width: 768px) {
   .nav-container {
     flex-wrap: wrap;
-    gap: 15px;
+    justify-content: center;
+    padding: 12px 16px;
   }
 
   .nav-links {
     width: 100%;
     justify-content: center;
     order: 3;
+    gap: 14px;
   }
 
   .nav-auth {
@@ -200,13 +213,9 @@ onBeforeUnmount(() => {
     width: 100%;
     justify-content: center;
   }
+
+  .nav-logo {
+    order: 1;
+  }
 }
-.account-link {
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  color: #2E7D32;
-  margin-right: 6px;
-}
-.account-link:hover { text-decoration: underline; }
 </style>

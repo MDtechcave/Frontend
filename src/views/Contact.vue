@@ -1,221 +1,312 @@
 <template>
-  <div class="contact-container"> 
+  <div class="page">
     <NavBar />
     <Sidebar />
-       
-    <h1 class="title">Let's Get In Touch</h1>
-    <p class="subtitle">
-      We’d love to hear from you. Whether it’s a question, feedback, or partnership inquiry — we’re here for it.
-    </p>
 
-    <div class="contact-grid">
+    <!-- main content wrapper so navbar/sidebar don’t fight the layout -->
+    <main class="contact-container">
+      <header class="hero">
+        <h1 class="title">Let's Get In Touch</h1>
+        <p class="subtitle">
+          We’d love to hear from you. Whether it’s a question, feedback, or partnership inquiry — we’re here for it.
+        </p>
+      </header>
 
       <!-- Contact Info Cards -->
-      <div class="contact-card">
-        <i class="fas fa-envelope icon"></i>
-        <h3>Email Address</h3>
-        <p>support@healthyhabits.co.za</p>
-      </div>
+      <section class="contact-grid">
+        <div class="contact-card">
+          <div class="icon">📧</div>
+          <h3>Email Address</h3>
+          <p>support@healthyhabits.co.za</p>
+        </div>
 
-      <div class="contact-card">
-        <i class="fas fa-phone icon"></i>
-        <h3>Phone Number</h3>
-        <p>+27 31 123 4567</p>
-      </div>
+        <div class="contact-card">
+          <div class="icon">📞</div>
+          <h3>Phone Number</h3>
+          <p>+27 31 123 4567</p>
+        </div>
 
-      <div class="contact-card">
-        <i class="fab fa-whatsapp icon"></i>
-        <h3>WhatsApp Number</h3>
-        <p>+27 72 987 6543</p>
-      </div>
+        <div class="contact-card">
+          <div class="icon">💬</div>
+          <h3>WhatsApp Number</h3>
+          <p>+27 72 987 6543</p>
+        </div>
 
-      <div class="contact-card">
-        <i class="fas fa-map-marker-alt icon"></i>
-        <h3>Head Office</h3>
-        <p>City of Cape Town, South Africa</p>
-      </div>
+        <div class="contact-card">
+          <div class="icon">📍</div>
+          <h3>Head Office</h3>
+          <p>City of Cape Town, South Africa</p>
+        </div>
 
-      <div class="contact-card">
-        <i class="fas fa-clock icon"></i>
-        <h3>Business Hours</h3>
-        <p>Mon - Fri: 8AM - 6PM</p>
-      </div>
+        <div class="contact-card">
+          <div class="icon">⏰</div>
+          <h3>Business Hours</h3>
+          <p>Mon - Fri: 8AM - 6PM</p>
+        </div>
+      </section>
 
-    </div>
+      <!-- Social Section -->
+      <section class="social-section">
+        <h2>Connect With Us</h2>
 
-    <!-- Social Section -->
-    <div class="social-section">
-      <h2>Connect With Us</h2>
-      <div class="social-icons">
-        <i class="fab fa-facebook-f social"><img :src="facebookGif" alt="Facebook" /></i>
-        <i class="fab fa-instagram social"><img :src="instagramGif" alt="Instagram" /></i>
-        <i class="fab fa-twitter social"><img :src="xGif" alt="X" /></i>
-        <i class="fab fa-linkedin-in social"><img :src="linkedinGif" alt="LinkedIn" /></i>
-        <i class="fab fa-tiktok social"><img :src="tiktokGif" alt="TikTok" /></i>
-      </div>
-    </div>
+        <!-- i switched this to buttons/links so it behaves properly -->
+        <div class="social-icons">
+          <a class="social" href="#" aria-label="Facebook">
+            <img :src="facebookGif" alt="Facebook" />
+          </a>
 
-    <!-- Contact Form -->
-    <div class="form-section">
-      <h2>Send Us a Message</h2>
+          <a class="social" href="#" aria-label="Instagram">
+            <img :src="instagramGif" alt="Instagram" />
+          </a>
 
-      <form @submit.prevent="submitForm">
-        <input type="text" v-model="name" placeholder="Your Name" required />
-        <input type="email" v-model="email" placeholder="Your Email" required />
-        <textarea v-model="message" placeholder="Your Message" required></textarea>
-        <button type="submit">Send Message</button>
-      </form>
+          <a class="social" href="#" aria-label="X (Twitter)">
+            <img :src="xGif" alt="X" />
+          </a>
 
-      <p v-if="successMessage" class="success">
-        {{ successMessage }}
-      </p>
-    </div>
+          <a class="social" href="#" aria-label="LinkedIn">
+            <img :src="linkedinGif" alt="LinkedIn" />
+          </a>
+
+          <a class="social" href="#" aria-label="TikTok">
+            <img :src="tiktokGif" alt="TikTok" />
+          </a>
+        </div>
+      </section>
+
+      <!-- Contact Form -->
+      <section class="form-section">
+        <h2>Send Us a Message</h2>
+
+        <form class="form-card" @submit.prevent="submitForm">
+          <input type="text" v-model="name" placeholder="Your Name" required />
+          <input type="email" v-model="email" placeholder="Your Email" required />
+          <textarea v-model="message" placeholder="Your Message" rows="5" required></textarea>
+
+          <button type="submit">Send Message</button>
+
+          <p v-if="successMessage" class="success">
+            {{ successMessage }}
+          </p>
+        </form>
+      </section>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import NavBar from "@/components/NavBar.vue";
-import tiktokGif from '../assets/icons8-tiktok-logo.gif'
-import facebookGif from '../assets/icons8-facebook-circled.gif'
-import instagramGif from '../assets/icons8-instagram-logo.gif'
-import xGif from '../assets/icons8-x-logo-50.png'
-import linkedinGif from '../assets/icons8-linkedin-2.gif'
-import Sidebar from "@/components/Sidebar.vue";
+import { ref } from "vue"
+import NavBar from "@/components/NavBar.vue"
+import Sidebar from "@/components/Sidebar.vue"
 
-const name = ref("");
-const email = ref("");
-const message = ref("");
-const successMessage = ref("");
+import tiktokGif from "../assets/icons8-tiktok-logo.gif"
+import facebookGif from "../assets/icons8-facebook-circled.gif"
+import instagramGif from "../assets/icons8-instagram-logo.gif"
+import xGif from "../assets/icons8-x-logo-50.png"
+import linkedinGif from "../assets/icons8-linkedin-2.gif"
+
+const name = ref("")
+const email = ref("")
+const message = ref("")
+const successMessage = ref("")
 
 function submitForm() {
-  successMessage.value = "Your message has been sent successfully!";
-  name.value = "";
-  email.value = "";
-  message.value = "";
+  // for the demo this is enough — later you can connect it to backend/email
+  successMessage.value = "Your message has been sent successfully ✅"
+  name.value = ""
+  email.value = ""
+  message.value = ""
 }
 </script>
 
 <style scoped>
-
-.contact-container {
-  padding-left: 2%;
-  padding-right: 2%;
-  text-align: center;
+/* overall page */
+.page{
+  min-height: 100vh;
   background: linear-gradient(to bottom, #f7fff7, #ffffff);
 }
 
-p, h3, h2{
-    color: black;
+/* wrapper */
+.contact-container{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 16px 70px;
+  text-align: center;
+}
+
+/* hero */
+.hero{
+  padding-top: 10px;
+  margin-bottom: 35px;
 }
 
 .title {
-  font-size: 40px;
-  margin-bottom: 10px;
+  font-size: clamp(28px, 4vw, 44px);
+  margin: 0 0 10px;
   color: #2e7d32;
-  animation: fadeInDown 1s ease;
+  font-weight: 1000;
+  animation: fadeInDown 0.8s ease;
 }
 
 .subtitle {
-  margin-bottom: 40px;
+  margin: 0 auto;
+  max-width: 850px;
   color: #555;
-  animation: fadeIn 1.5s ease;
+  font-weight: 700;
+  line-height: 1.5;
+  animation: fadeIn 1.2s ease;
 }
 
+/* cards grid */
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
-  margin-bottom: 50px;
+  gap: 22px;
+  margin-bottom: 55px;
 }
 
 .contact-card {
   background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
-  cursor: pointer;
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+  transition: all 0.25s ease;
+  border: 1px solid rgba(0,0,0,0.04);
 }
 
 .contact-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 18px 35px rgba(0,0,0,0.14);
+  border-color: rgba(76,175,80,0.25);
 }
 
+.contact-card h3{
+  margin: 10px 0 6px;
+  color: #111;
+  font-weight: 1000;
+}
+
+.contact-card p{
+  margin: 0;
+  color: #444;
+  font-weight: 800;
+}
+
+/* icons inside cards */
 .icon {
-  font-size: 30px;
-  margin-bottom: 15px;
-  color: #43a047;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border-radius: 14px;
+  background: rgba(67,160,71,0.12);
+  color: #2e7d32;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 26px;
 }
 
+/* socials */
 .social-section {
-  margin-bottom: 50px;
+  margin-bottom: 55px;
+}
+
+.social-section h2{
+  margin: 0 0 14px;
+  color: #111;
+  font-weight: 1000;
 }
 
 .social-icons {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-top: 15px;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .social {
-  font-size: 24px;
-  color: #2e7d32;
-  transition: 0.3s ease;
-  cursor: pointer;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: 0.25s ease;
 }
 
-.social:hover {
-  transform: scale(1.3);
-  color: #1b5e20;
+.social:hover{
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+  border-color: rgba(76,175,80,0.25);
 }
 
-.form-section {
-  max-width: 600px;
-  margin: auto;
+.social img{
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
-form {
-  display: flex;
+/* form section */
+.form-section{
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.form-section h2{
+  margin: 0 0 14px;
+  color: #111;
+  font-weight: 1000;
+}
+
+.form-card{
+  background: white;
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.04);
+  display:flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
+  text-align: left;
 }
 
 input, textarea {
   padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  transition: 0.3s ease;
+  border-radius: 10px;
+  border: 1.5px solid #d7d7d7;
+  transition: 0.2s ease;
+  font-weight: 800;
 }
 
 input:focus, textarea:focus {
   border-color: #43a047;
   outline: none;
-  box-shadow: 0 0 5px rgba(67,160,71,0.5);
+  box-shadow: 0 0 0 4px rgba(67,160,71,0.15);
 }
 
 button {
   padding: 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #43a047;
   color: white;
-  font-weight: bold;
+  font-weight: 1000;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: 0.2s ease;
 }
 
 button:hover {
   background: #2e7d32;
-  transform: scale(1.05);
+  transform: translateY(-2px);
 }
 
 .success {
-  margin-top: 15px;
+  margin: 0;
   color: #2e7d32;
-  font-weight: bold;
+  font-weight: 1000;
+  text-align: center;
 }
 
 /* Animations */
@@ -225,8 +316,18 @@ button:hover {
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-20px); }
+  from { opacity: 0; transform: translateY(-18px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* mobile tweaks */
+@media (max-width: 480px){
+  .contact-container{
+    padding: 30px 14px 60px;
+  }
+  .social{
+    width: 52px;
+    height: 52px;
+  }
+}
 </style>

@@ -29,7 +29,7 @@ const tax = computed(() => subtotal.value - subtotal.value / 1.15)
 
 const subtotalExTax = computed(() => subtotal.value / 1.15)
 
-const deliveryCost = computed(() => deliveryType.value === 'express' ? 60 : 30)
+const deliveryCost = computed(() => deliveryType.value === 'express' ? 60 : 35)
 
 const total = computed(() =>
   Math.max(0, subtotal.value + deliveryCost.value - discountAmount.value)
@@ -82,8 +82,8 @@ function goToPayment() {
       <div class="section">
         <h2>Delivery Type</h2>
         <select v-model="deliveryType">
-          <option value="standard">Standard (R30)</option>
-          <option value="express">Express (R50)</option>
+          <option value="standard">Standard (R35)</option>
+          <option value="express">Express (R60)</option>
         </select>
       </div>
 
