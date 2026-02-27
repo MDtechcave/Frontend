@@ -19,7 +19,7 @@ const handleLogin = async () => {
   errorMessage.value = ''
 
   if (!email.value || !password.value) {
-    errorMessage.value = 'Please enter email and password'
+    errorMessage.value = 'Please fill in all fields'
     return
   }
 
@@ -31,14 +31,14 @@ const handleLogin = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email.value,
-        password: password.value  
+        password: password.value
       })
     })
 
     const data = await res.json()
-    
-    if (!res.ok) {
-      errorMessage.value = data.error || 'Login failed'
+
+    if (!res.ok || !data.success) {
+      errorMessage.value = data.message || 'Login failed.'
       return
     }
 
@@ -62,11 +62,17 @@ const handleLogin = async () => {
     // Redirect based on role
     const userRole = user.role?.toLowerCase()
     if (userRole === 'admin') {
+    localStorage.setItem('user', JSON.stringify(data.user))
+    localStorage.setItem('token', data.token || '') // safe if your backend returns token
+    window.dispatchEvent(new Event('auth-changed')) // ✅ THIS makes navbar/sidebar update instantly
+
+    // Role-based redirect
+    if (data.user.role === 'ADMIN') {
       router.push('/admin')
     } else {
       router.push('/')
     }
-    
+
   } catch (err) {
     console.error('Login error:', err)
     errorMessage.value = 'Server error. Please try again.'
@@ -124,8 +130,8 @@ const goToRegister = () => {
 </template>
 
 <style scoped>
-/* Keep your existing styles - they're fine! */
 .logo { width: 140px; margin-bottom: 20px; }
+
 .auth-container {
   min-height: 100vh; display: flex; justify-content: center;
   align-items: center; background: #f4f6f5; padding: 20px;
@@ -135,30 +141,60 @@ const goToRegister = () => {
   width: 100%; max-width: 420px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   text-align: center;
 }
-.auth-card h2 { margin-bottom: 20px; color: #2E7D32; }
+
+.auth-card h2 { margin-bottom: 20px; color: #2E7D32; font-size: 24px; }
+
 input {
-  width: 100%; padding: 12px; margin-bottom: 15px;
-  border-radius: 10px; border: 1px solid #ccc; font-size: 14px;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  box-sizing: border-box;
 }
+
+input:disabled { background-color: #f5f5f5; cursor: not-allowed; }
+
 .password-wrapper { position: relative; margin-bottom: 15px; }
 .password-wrapper input { margin-bottom: 0; padding-right: 60px; }
+
 .toggle-password {
   position: absolute; right: 12px; top: 50%;
   transform: translateY(-50%); cursor: pointer;
   font-size: 13px; color: #2E7D32; font-weight: 600;
 }
+
+.toggle-password:hover { text-decoration: underline; }
+
 .primary-btn, .secondary-btn {
-  width: 100%; padding: 12px; border: none; border-radius: 10px;
-  cursor: pointer; font-size: 15px; transition: 0.3s;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
 }
+
 .primary-btn { background: #2E7D32; color: white; margin-bottom: 15px; }
 .primary-btn:hover:not(:disabled) { background: #1b5e20; }
+.primary-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .secondary-btn { background: #F57C00; color: white; }
+.secondary-btn:hover:not(:disabled) { background: #ef6c00; }
+
 .redirect-text { margin: 10px 0; color: #555; font-size: 14px; }
-hr { margin: 20px 0; border: none; height: 1px; background: #eee; } 
+hr { margin: 20px 0; border: none; height: 1px; background: #eee; }
+
 .error {
   color: #d32f2f; margin-bottom: 15px; font-size: 14px;
   background: #ffebee; padding: 10px; border-radius: 8px;
   border-left: 4px solid #d32f2f;
+}
+
+@media (max-width: 480px) {
+  .auth-card { padding: 25px; border-radius: 15px; }
+  .logo { width: 120px; }
 }
 </style>

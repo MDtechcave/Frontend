@@ -33,8 +33,27 @@ const checkAuth = () => {
     console.log('⚠️ No user in localStorage')
     isAuthenticated.value = false
     userName.value = ''
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+
+const authTick = ref(0) // tiny trigger to re-evaluate computed when storage changes
+
+const user = computed(() => {
+  authTick.value // dependency
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null')
+  } catch {
+    return null
   }
-}
+})
+
+const isAuthenticated = computed(() => !!user.value?.id || !!user.value?.email)
+const userName = computed(() => user.value?.name || 'User')
+
+const syncAuth = () => authTick.value++
 
 // ✅ Listen for localStorage changes
 const handleStorageChange = (e) => {
@@ -52,6 +71,8 @@ const handleLogout = () => {
   userName.value = ''
   
   window.dispatchEvent(new Event('storage'))
+  localStorage.removeItem('token') // safe even if you don't use it
+  syncAuth()
   router.push('/')
 }
 
@@ -78,10 +99,9 @@ onUnmounted(() => {
 <template>
   <nav class="navbar">
     <div class="nav-container">
-
       <!-- Logo -->
       <router-link to="/" class="nav-logo">
-        <img src="@/assets/logo.png" class="logo-img" alt="Logo">
+        <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
         Healthy Habits
       </router-link>
 
@@ -107,21 +127,15 @@ onUnmounted(() => {
 
         <!-- ✅ NOT LOGGED IN: Show login + signup -->
         <template v-else>
-          <button class="nav-btn login-btn" @click="handleLogin">
-            Login
-          </button>
-          <button class="nav-btn register-btn" @click="handleSignup">
-            Sign Up
-          </button>
+          <button class="nav-btn login-btn" @click="handleLogin">Login</button>
+          <button class="nav-btn register-btn" @click="handleSignup">Sign Up</button>
         </template>
-
       </div>
-
     </div>
   </nav>
 </template>
 
-<style scoped>
+<style>
 .navbar {
   position: sticky;
   top: 0;
@@ -219,7 +233,6 @@ onUnmounted(() => {
   background: #c62828;
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .nav-container {
     flex-wrap: wrap;
@@ -236,4 +249,12 @@ onUnmounted(() => {
     justify-content: center;
   }
 }
+.account-link {
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2E7D32;
+  margin-right: 6px;
+}
+.account-link:hover { text-decoration: underline; }
 </style>

@@ -26,7 +26,7 @@ import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:2534';
 const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 const amount = computed(() => Number(route.query.amount || 0));
@@ -37,14 +37,19 @@ const loading = ref(false);
 const ready = ref(false);
 const message = ref("");
 const orderId = ref(null);
-const orderCode = ref(null); 
+const orderCode = ref(null);
 
+// ✅ Correctly reads sub_id saved by Packages.vue after subscription is created
 const subId = computed(() => {
   try {
     const user = JSON.parse(localStorage.getItem("user") || "null");
-    return user?.sub_id || user?.id || 1;
+    const id = user?.sub_id;
+    if (!id) {
+      console.warn('No sub_id found in localStorage user object:', user);
+    }
+    return id || null;
   } catch {
-    return 1;
+    return null;
   }
 });
 
@@ -54,6 +59,13 @@ onMounted(async () => {
       message.value = "No amount found. Please go back to checkout.";
       return;
     }
+
+    // ✅ Guard: if no sub_id, stop and show clear error
+    if (!subId.value) {
+      message.value = "No subscription found. Please select a package first.";
+      return;
+    }
+
     if (!API_URL || !PUBLISHABLE_KEY) {
       message.value = "Missing frontend .env values (API URL or Stripe key).";
       return;
@@ -65,21 +77,16 @@ onMounted(async () => {
       return;
     }
 
-    // Created PaymentIntent 
     const res = await fetch(`${API_URL}/api/payments/create-payment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        sub_id: subId.value,
-        amount: amount.value, // rands, backend converts to cents
+        sub_id: subId.value,  // ✅ correctly uses sub_id from subscription
+        amount: amount.value,
       }),
     });
 
-console.log("API_URL:", API_URL);
-console.log("Response status:", res.status);
-const data = await res.json();
-console.log("Response data:", data);
-
+    const data = await res.json();
 
     if (!res.ok) {
       message.value = data?.error || "Failed to create payment.";
@@ -105,7 +112,6 @@ const handlePayment = async () => {
   loading.value = true;
   message.value = "";
 
-  
   const { error: submitError } = await elements.value.submit();
   if (submitError) {
     message.value = submitError.message;
@@ -124,7 +130,7 @@ const handlePayment = async () => {
   if (error) {
     message.value = error.message;
   } else {
-    localStorage.setItem('orderCode', orderCode.value)
+    localStorage.setItem('orderCode', orderCode.value);
     localStorage.removeItem("cart");
     router.push("/success");
   }

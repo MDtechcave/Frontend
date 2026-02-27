@@ -11,7 +11,7 @@ const packages = ref([])
 const loading = ref(true)
 const error = ref(null)
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:2534'
 
 onMounted(async () => {
   try {
@@ -38,12 +38,12 @@ const addToCart = async (pkg) => {
       return
     }
 
-    // Create subscription in DB
+    // ✅ user.id is what login returns (mapped from user_id in DB)
     const res = await fetch(`${API_URL}/api/subscription`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_id: user.user_id,
+        user_id: user.id,  // ✅ fixed: was user.user_id which is undefined
         package_id: pkg.package_id,
         start_date: new Date().toISOString().split('T')[0],
         status: 'active'
@@ -52,8 +52,13 @@ const addToCart = async (pkg) => {
 
     const data = await res.json()
 
-    // Save sub_id to user in localStorage so payment works
-    const updatedUser = { ...user, sub_id: data.data?.insertId }
+    if (!res.ok) {
+      alert(data.error || 'Failed to create subscription.')
+      return
+    }
+
+    // ✅ save sub_id from top-level response
+    const updatedUser = { ...user, sub_id: data.sub_id }
     localStorage.setItem('user', JSON.stringify(updatedUser))
 
     // Save package to cart
