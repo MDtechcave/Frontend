@@ -8,7 +8,7 @@ const router = useRouter()
   i kept this navbar auth check SIMPLE:
   - user is stored in localStorage
   - whenever login/logout happens we trigger a refresh with authTick
-  - no random “checkAuth” spaghetti 😭
+  - no random “checkAuth” spaghetti 
 */
 
 const authTick = ref(0)
@@ -49,10 +49,10 @@ onMounted(() => {
   // initial load
   syncAuth()
 
-  // ✅ our own custom event (we dispatch this after login/logout)
+  //  our own custom event (we dispatch this after login/logout)
   window.addEventListener('auth-changed', syncAuth)
 
-  // ✅ storage event (helps if they login in another tab)
+  //  storage event (helps if they login in another tab)
   window.addEventListener('storage', syncAuth)
 })
 
