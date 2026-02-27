@@ -14,50 +14,37 @@ import UserManagement from '../views/UserManagement.vue'
 import MealManagement from '../views/MealManagement.vue'
 import Success from '../views/Success.vue'
 import Contact from '../views/Contact.vue'
-import Sidebar from '../components/Sidebar.vue'
 import Profile from '../views/Profile.vue'
-import Donations from '../views/Donations.vue'
-import Support from '../views/Support.vue'
-
 
 const routes = [
-
   {
     path: '/',
     name: 'home',
     component: HomeView,
     meta: { requiresAuth: true, role: 'USER' }
-
-
   },
-
   {
     path: '/login',
     name: 'login',
     component: Login,
-    meta: { guestOnly: true } // logged-in users get redirected away
+    meta: { guestOnly: true }
   },
   {
     path: '/register',
     name: 'register',
     component: Register,
-    
   },
-   {
+  {
     path: '/profile',
     name: 'profile',
     component: Profile,
-    
   },
-
   {
     path: '/success',
     name: 'success',
     component: Success,
     meta: { public: true }
   },
-  
-  // Customer routes (any authenticated user)
   {
     path: '/mealplan',
     name: 'mealplan',
@@ -90,17 +77,17 @@ const routes = [
   },
   {
     path: '/contact',
-    name: 'Contact',
+    name: 'contact',
     component: Contact,
     meta: { requiresAuth: true, role: 'USER' }
   },
   {
-    path: '/success',
-    name: 'success',
-    component: Success,
-    meta: { requiresAuth: true, role: 'USER' }
+    path: '/events',
+    name: 'events',
+    component: () => import('../views/Events.vue')
   },
 
+  // Admin routes
   {
     path: '/admin',
     name: 'admin',
@@ -108,49 +95,17 @@ const routes = [
     meta: { requiresAuth: true, role: 'ADMIN' }
   },
   {
-    path: '/user',
+    path: '/admin/users',      // ✅ fixed from '/user'
     name: 'user',
     component: UserManagement,
     meta: { requiresAuth: true, role: 'ADMIN' }
   },
   {
-    path: '/meal',
+    path: '/admin/meals',      // ✅ fixed from '/meal'
     name: 'meal',
     component: MealManagement,
     meta: { requiresAuth: true, role: 'ADMIN' }
   },
-  {
-    path: '/sidebar',
-    name: 'SideBar',
-    component: Sidebar,
-    meta: { requiresAuth: true, role: 'ADMIN' }
-  },
-
-{
-  path: '/events',
-  name: 'events',
-  component: () => import('../views/Events.vue')
-},
-// {
-//   path: '/donations',
-//   name: 'Donations',
-//   component: Donations,
-//   meta: { requiresAuth: true, role: 'ADMIN' }
-
-// },
-// {
-//   path: '/support',
-//   name: 'Support',
-//   component: Support,
-//   meta: { requiresAuth: true, role: 'ADMIN' }
-
-// }
-// {
-//   path: '/contact',
-//   name: 'Contact',
-//   component: Contact,
-//   meta: { requiresAuth: true, role: 'ADMIN' }
-// }
 ]
 
 const router = createRouter({

@@ -3,6 +3,10 @@
   <Sidebar />
 </template>
 
+<script setup>
+import Sidebar from './components/Sidebar.vue'
+</script>
+
 <style>
 html, body {
   height: 100%;
