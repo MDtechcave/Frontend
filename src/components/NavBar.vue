@@ -1,48 +1,22 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const isAuthenticated = ref(false)
-const userName = ref('')
 
-// ✅ Check auth state from localStorage
-const checkAuth = () => {
-  const user = localStorage.getItem('user')
-  
-  console.log('🔍 NavBar checkAuth - localStorage user:', user)
-  
-  if (user) {
-    try {
-      const userData = JSON.parse(user)
-      console.log('✅ Parsed userData:', userData)
-      console.log('✅ Has id?', !!userData?.id)
-      
-      // ✅ Must have 'id' to be considered logged in
-      isAuthenticated.value = !!userData?.id
-      userName.value = userData?.name || userData?.username || 'User'
-      
-      console.log('✅ isAuthenticated:', isAuthenticated.value)
-      console.log('✅ userName:', userName.value)
-    } catch (e) {
-      console.error('❌ Failed to parse user:', e)
-      isAuthenticated.value = false
-      userName.value = ''
-    }
-  } else {
-    console.log('⚠️ No user in localStorage')
-    isAuthenticated.value = false
-    userName.value = ''
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+/*
+  i kept this navbar auth check SIMPLE:
+  - user is stored in localStorage
+  - whenever login/logout happens we trigger a refresh with authTick
+  - no random “checkAuth” spaghetti 😭
+*/
 
-const router = useRouter()
-const route = useRoute()
+const authTick = ref(0)
+const syncAuth = () => authTick.value++
 
-const authTick = ref(0) // small trigger to re-check localStorage when it changes
-
+// read user from localStorage safely
 const user = computed(() => {
-  authTick.value
+  authTick.value // dependency so computed re-runs when we tick
   try {
     return JSON.parse(localStorage.getItem('user') || 'null')
   } catch {
@@ -50,80 +24,69 @@ const user = computed(() => {
   }
 })
 
+// logged in if we have id OR email (some backends return email only)
 const isAuthenticated = computed(() => !!user.value?.id || !!user.value?.email)
-const userName = computed(() => user.value?.name || 'User')
+const userName = computed(() => user.value?.name || user.value?.username || 'User')
 
-const syncAuth = () => authTick.value++
-
-// ✅ Listen for localStorage changes
-const handleStorageChange = (e) => {
-  console.log('🔄 Storage event:', e.key, e.newValue)
-  if (e.key === 'user' || e.key === 'token') {
-    checkAuth()
-  }
-}
-
-// ✅ Logout handler
+// logout
 const handleLogout = () => {
-  // clear user + token then go home
   localStorage.removeItem('user')
   localStorage.removeItem('token')
-  isAuthenticated.value = false
-  userName.value = ''
-  
-  window.dispatchEvent(new Event('storage'))
-  localStorage.removeItem('token') // safe even if you don't use it
+
+  // tell other components like sidebar/navbar that auth changed
+  window.dispatchEvent(new Event('auth-changed'))
+
+  // update navbar state
   syncAuth()
+
   router.push('/')
 }
 
 const handleLogin = () => router.push('/login')
 const handleSignup = () => router.push('/register')
 
-// ✅ Lifecycle
 onMounted(() => {
-  checkAuth()
-  window.addEventListener('storage', handleStorageChange)
-  
-  // ✅ Check auth on every route change
-  router.afterEach(() => {
-    console.log('🔄 Route changed, checking auth...')
-    setTimeout(checkAuth, 100) // Small delay to ensure storage is updated
-  })
+  // initial load
+  syncAuth()
+
+  // ✅ our own custom event (we dispatch this after login/logout)
+  window.addEventListener('auth-changed', syncAuth)
+
+  // ✅ storage event (helps if they login in another tab)
+  window.addEventListener('storage', syncAuth)
 })
 
-onUnmounted(() => {
-  window.removeEventListener('storage', handleStorageChange)
+onBeforeUnmount(() => {
+  window.removeEventListener('auth-changed', syncAuth)
+  window.removeEventListener('storage', syncAuth)
 })
 </script>
 
 <template>
   <nav class="navbar">
     <div class="nav-container">
+      <!-- Logo -->
       <router-link to="/" class="nav-logo">
         <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
         Healthy Habits
       </router-link>
 
+      <!-- Links -->
       <div class="nav-links">
         <router-link to="/" class="nav-link">Home</router-link>
         <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
+        <router-link to="/events" class="nav-link">Events</router-link>
         <router-link to="/contact" class="nav-link">Contact</router-link>
         <router-link to="/cart" class="nav-link">Cart</router-link>
-        <router-link to="/profile" class="nav-link">Profile</router-link>
       </div>
 
+      <!-- Auth -->
       <div class="nav-auth">
-
-        <!-- ✅ LOGGED IN: Show welcome + logout -->
         <template v-if="isAuthenticated">
           <span class="user-greeting">Welcome, {{ userName }} 👋</span>
-          <button class="nav-btn logout-btn" @click="handleLogout">
-            Logout
-          </button>
+          <button class="nav-btn logout-btn" @click="handleLogout">Logout</button>
         </template>
 
-        <!-- ✅ NOT LOGGED IN: Show login + signup -->
         <template v-else>
           <button class="nav-btn login-btn" @click="handleLogin">Login</button>
           <button class="nav-btn register-btn" @click="handleSignup">Sign Up</button>
@@ -135,14 +98,15 @@ onUnmounted(() => {
 
 <style>
 /*
-  fix note:
-  navbar stays sticky and clean.
-  on smaller screens i wrap links + auth nicely so it doesn't squish.
+  navbar notes:
+  - sticky on top
+  - wraps nicely on small screens
+  - z-index is below sidebar drawer (9999) but above page content
 */
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 2000; /* below sidebar overlay/drawer, above page */
+  z-index: 2000;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -155,7 +119,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px; /* helps when it wraps */
+  gap: 14px;
 }
 
 .nav-logo {
@@ -163,7 +127,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  font-weight: 800;
+  font-weight: 900;
   color: #2E7D32;
   white-space: nowrap;
 }
@@ -177,14 +141,14 @@ onUnmounted(() => {
 .nav-links {
   display: flex;
   gap: 22px;
-  flex-wrap: wrap; /* ✅ makes half-screen behave */
+  flex-wrap: wrap;
   justify-content: center;
 }
 
 .nav-link {
   text-decoration: none;
   color: #333;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .nav-link:hover {
@@ -195,14 +159,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap; /* ✅ prevents squish */
+  flex-wrap: wrap;
   justify-content: flex-end;
 }
 
 .user-greeting {
   font-size: 14px;
   color: #555;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .nav-btn {
@@ -211,7 +175,7 @@ onUnmounted(() => {
   border: none;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   transition: 0.2s;
 }
 
@@ -220,50 +184,34 @@ onUnmounted(() => {
   background: transparent;
   color: #2E7D32;
 }
-
-.login-btn:hover {
-  background: #e8f5e9;
-}
+.login-btn:hover { background: #e8f5e9; }
 
 .register-btn {
   background: #F57C00;
   color: white;
 }
-
-.register-btn:hover {
-  background: #ef6c00;
-}
+.register-btn:hover { background: #ef6c00; }
 
 .logout-btn {
   background: #d32f2f;
   color: white;
 }
+.logout-btn:hover { background: #c62828; }
 
-.logout-btn:hover {
-  background: #c62828;
-}
-
-.account-link {
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  color: #2E7D32;
-}
-.account-link:hover { text-decoration: underline; }
-
-/* ✅ mobile layout */
 @media (max-width: 768px) {
   .nav-container {
     flex-wrap: wrap;
     justify-content: center;
     padding: 12px 16px;
   }
+
   .nav-links {
     width: 100%;
     justify-content: center;
     order: 3;
     gap: 14px;
   }
+
   .nav-auth {
     order: 2;
     width: 100%;

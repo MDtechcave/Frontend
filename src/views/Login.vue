@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
+
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
@@ -18,6 +20,7 @@ const togglePassword = () => {
 const handleLogin = async () => {
   errorMessage.value = ''
 
+  // quick validation - i’m not letting empty fields embarrass me in the demo 😭
   if (!email.value || !password.value) {
     errorMessage.value = 'Please fill in all fields'
     return
@@ -30,7 +33,7 @@ const handleLogin = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: email.value,
+        email: email.value.trim(),
         password: password.value
       })
     })
@@ -42,33 +45,32 @@ const handleLogin = async () => {
       return
     }
 
-    const user = data.user
-    
-    // 🔧 TEMPORARY WORKAROUND: Use email as ID (NOT ideal)
-    // This is just to make NavBar work until backend is fixed
-    const userToStore = {
-      id: user.id || user.user_id || user.email,  // ← Email as fallback ID
-      name: user.name,
-      email: user.email,
-      role: user.role
-    }
-    
-    console.log('⚠️ Storing user (using email as ID):', userToStore)
-    localStorage.setItem('user', JSON.stringify(userToStore))
-    
-    // Force NavBar update
-    window.dispatchEvent(new Event('storage'))
-    
-    // Redirect based on role
-    const userRole = user.role?.toLowerCase()
-    if (userRole === 'admin') {
-    localStorage.setItem('user', JSON.stringify(data.user))
-    localStorage.setItem('token', data.token || '') // safe if your backend returns token
-    window.dispatchEvent(new Event('auth-changed')) // ✅ THIS makes navbar/sidebar update instantly
+    // ✅ backend usually returns { user, token }
+    const user = data.user || {}
 
-    // Role-based redirect
-    if (data.user.role === 'ADMIN') {
+    // ✅ normalize the user object so navbar/sidebar don’t panic
+    const userToStore = {
+      id: user.id || user.user_id || null,        // prefer real numeric id
+      name: user.name || user.username || 'User',
+      email: user.email || email.value.trim(),
+      role: (user.role || 'USER').toUpperCase()
+    }
+
+    // ✅ store user + token ONCE
+    localStorage.setItem('user', JSON.stringify(userToStore))
+    localStorage.setItem('token', data.token || '')
+
+    // ✅ this is the MAIN thing that updates navbar + sidebar instantly
+    window.dispatchEvent(new Event('auth-changed'))
+
+    // ✅ if they were redirected here from a protected page, take them back
+    const redirect = route.query.redirect ? String(route.query.redirect) : null
+
+    // ✅ role-based redirect (simple and clean)
+    if (userToStore.role === 'ADMIN') {
       router.push('/admin')
+    } else if (redirect) {
+      router.push(redirect)
     } else {
       router.push('/')
     }
@@ -142,7 +144,7 @@ const goToRegister = () => {
   text-align: center;
 }
 
-.auth-card h2 { margin-bottom: 20px; color: #2E7D32; font-size: 24px; }
+.auth-card h2 { margin-bottom: 20px; color: #2E7D32; font-size: 24px; font-weight: 1000; }
 
 input {
   width: 100%;
@@ -152,17 +154,18 @@ input {
   border: 1px solid #ccc;
   font-size: 14px;
   box-sizing: border-box;
+  font-weight: 700;
 }
 
 input:disabled { background-color: #f5f5f5; cursor: not-allowed; }
 
 .password-wrapper { position: relative; margin-bottom: 15px; }
-.password-wrapper input { margin-bottom: 0; padding-right: 60px; }
+.password-wrapper input { margin-bottom: 0; padding-right: 70px; }
 
 .toggle-password {
   position: absolute; right: 12px; top: 50%;
   transform: translateY(-50%); cursor: pointer;
-  font-size: 13px; color: #2E7D32; font-weight: 600;
+  font-size: 13px; color: #2E7D32; font-weight: 900;
 }
 
 .toggle-password:hover { text-decoration: underline; }
@@ -175,6 +178,7 @@ input:disabled { background-color: #f5f5f5; cursor: not-allowed; }
   cursor: pointer;
   font-size: 15px;
   transition: 0.3s;
+  font-weight: 1000;
 }
 
 .primary-btn { background: #2E7D32; color: white; margin-bottom: 15px; }
@@ -184,13 +188,14 @@ input:disabled { background-color: #f5f5f5; cursor: not-allowed; }
 .secondary-btn { background: #F57C00; color: white; }
 .secondary-btn:hover:not(:disabled) { background: #ef6c00; }
 
-.redirect-text { margin: 10px 0; color: #555; font-size: 14px; }
+.redirect-text { margin: 10px 0; color: #555; font-size: 14px; font-weight: 800; }
 hr { margin: 20px 0; border: none; height: 1px; background: #eee; }
 
 .error {
   color: #d32f2f; margin-bottom: 15px; font-size: 14px;
   background: #ffebee; padding: 10px; border-radius: 8px;
   border-left: 4px solid #d32f2f;
+  font-weight: 800;
 }
 
 @media (max-width: 480px) {

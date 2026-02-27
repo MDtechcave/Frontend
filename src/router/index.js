@@ -9,15 +9,27 @@ import CartPage from '../views/CartPage.vue'
 import CheckoutPage from '../views/CheckoutPage.vue'
 import PaymentPage from '../views/PaymentPage.vue'
 import Packages from '../views/Packages.vue'
-import Admin from '@/views/Admin.vue'
-import UserManagement from '@/views/UserManagement.vue'
-import MealManagement from '@/views/MealManagement.vue'
+import Admin from '../views/Admin.vue'
+import UserManagement from '../views/UserManagement.vue'
+import MealManagement from '../views/MealManagement.vue'
 import Success from '../views/Success.vue'
-import Contact from '@/views/Contact.vue'
-import Sidebar from '@/components/Sidebar.vue'
-import Profile from '@/views/Profile.vue'
+import Contact from '../views/Contact.vue'
+import Sidebar from '../components/Sidebar.vue'
+import Profile from '../views/Profile.vue'
+import Donations from '../views/Donations.vue'
+import Support from '../views/Support.vue'
+
 
 const routes = [
+
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView,
+    meta: { requiresAuth: true, role: 'USER' }
+
+
+  },
 
   {
     path: '/login',
@@ -119,20 +131,26 @@ const routes = [
   name: 'events',
   component: () => import('../views/Events.vue')
 },
-{
-  path: '/donations',
-  name: 'Donations',
-  component: Donations,
-  meta: { requiresAuth: true, role: 'ADMIN' }
+// {
+//   path: '/donations',
+//   name: 'Donations',
+//   component: Donations,
+//   meta: { requiresAuth: true, role: 'ADMIN' }
 
-},
-{
-  path: '/support',
-  name: 'Support',
-  component: Support,
-  meta: { requiresAuth: true, role: 'ADMIN' }
+// },
+// {
+//   path: '/support',
+//   name: 'Support',
+//   component: Support,
+//   meta: { requiresAuth: true, role: 'ADMIN' }
 
-}
+// }
+// {
+//   path: '/contact',
+//   name: 'Contact',
+//   component: Contact,
+//   meta: { requiresAuth: true, role: 'ADMIN' }
+// }
 ]
 
 const router = createRouter({
