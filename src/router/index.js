@@ -13,11 +13,9 @@ import Admin from '@/views/Admin.vue'
 import UserManagement from '@/views/UserManagement.vue'
 import MealManagement from '@/views/MealManagement.vue'
 import Success from '../views/Success.vue'
-import Contact from '../views/Contact.vue'
-import Sidebar from '../components/Sidebar.vue'
-import Events from '../views/Events.vue'
-import Donations from '../views/Donations.vue'
-import Support from '../views/Support.vue'
+import Contact from '@/views/Contact.vue'
+import Sidebar from '@/components/Sidebar.vue'
+import Profile from '@/views/Profile.vue'
 
 const routes = [
 
@@ -31,15 +29,23 @@ const routes = [
     path: '/register',
     name: 'register',
     component: Register,
-    meta: { guestOnly: true } // customers only, admins don't register
+    
+  },
+   {
+    path: '/profile',
+    name: 'profile',
+    component: Profile,
+    
   },
 
   {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-    meta: { requiresAuth: true, role: 'USER' }
+    path: '/success',
+    name: 'success',
+    component: Success,
+    meta: { public: true }
   },
+  
+  // Customer routes (any authenticated user)
   {
     path: '/mealplan',
     name: 'mealplan',

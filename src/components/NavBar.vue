@@ -1,4 +1,38 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const isAuthenticated = ref(false)
+const userName = ref('')
+
+// ✅ Check auth state from localStorage
+const checkAuth = () => {
+  const user = localStorage.getItem('user')
+  
+  console.log('🔍 NavBar checkAuth - localStorage user:', user)
+  
+  if (user) {
+    try {
+      const userData = JSON.parse(user)
+      console.log('✅ Parsed userData:', userData)
+      console.log('✅ Has id?', !!userData?.id)
+      
+      // ✅ Must have 'id' to be considered logged in
+      isAuthenticated.value = !!userData?.id
+      userName.value = userData?.name || userData?.username || 'User'
+      
+      console.log('✅ isAuthenticated:', isAuthenticated.value)
+      console.log('✅ userName:', userName.value)
+    } catch (e) {
+      console.error('❌ Failed to parse user:', e)
+      isAuthenticated.value = false
+      userName.value = ''
+    }
+  } else {
+    console.log('⚠️ No user in localStorage')
+    isAuthenticated.value = false
+    userName.value = ''
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -21,10 +55,24 @@ const userName = computed(() => user.value?.name || 'User')
 
 const syncAuth = () => authTick.value++
 
+// ✅ Listen for localStorage changes
+const handleStorageChange = (e) => {
+  console.log('🔄 Storage event:', e.key, e.newValue)
+  if (e.key === 'user' || e.key === 'token') {
+    checkAuth()
+  }
+}
+
+// ✅ Logout handler
 const handleLogout = () => {
   // clear user + token then go home
   localStorage.removeItem('user')
   localStorage.removeItem('token')
+  isAuthenticated.value = false
+  userName.value = ''
+  
+  window.dispatchEvent(new Event('storage'))
+  localStorage.removeItem('token') // safe even if you don't use it
   syncAuth()
   router.push('/')
 }
@@ -32,14 +80,20 @@ const handleLogout = () => {
 const handleLogin = () => router.push('/login')
 const handleSignup = () => router.push('/register')
 
+// ✅ Lifecycle
 onMounted(() => {
-  syncAuth()
-  window.addEventListener('storage', syncAuth)
-  router.afterEach(() => syncAuth())
+  checkAuth()
+  window.addEventListener('storage', handleStorageChange)
+  
+  // ✅ Check auth on every route change
+  router.afterEach(() => {
+    console.log('🔄 Route changed, checking auth...')
+    setTimeout(checkAuth, 100) // Small delay to ensure storage is updated
+  })
 })
 
-onBeforeUnmount(() => {
-  window.removeEventListener('storage', syncAuth)
+onUnmounted(() => {
+  window.removeEventListener('storage', handleStorageChange)
 })
 </script>
 
@@ -56,15 +110,20 @@ onBeforeUnmount(() => {
         <router-link to="/mealplan" class="nav-link">Meal Plans</router-link>
         <router-link to="/contact" class="nav-link">Contact</router-link>
         <router-link to="/cart" class="nav-link">Cart</router-link>
+        <router-link to="/profile" class="nav-link">Profile</router-link>
       </div>
 
       <div class="nav-auth">
+
+        <!-- ✅ LOGGED IN: Show welcome + logout -->
         <template v-if="isAuthenticated">
-          <span class="user-greeting">Hi, {{ userName }}</span>
-          <router-link to="/account" class="account-link">Account</router-link>
-          <button class="nav-btn logout-btn" @click="handleLogout">Logout</button>
+          <span class="user-greeting">Welcome, {{ userName }} 👋</span>
+          <button class="nav-btn logout-btn" @click="handleLogout">
+            Logout
+          </button>
         </template>
 
+        <!-- ✅ NOT LOGGED IN: Show login + signup -->
         <template v-else>
           <button class="nav-btn login-btn" @click="handleLogin">Login</button>
           <button class="nav-btn register-btn" @click="handleSignup">Sign Up</button>
@@ -140,7 +199,6 @@ onBeforeUnmount(() => {
   justify-content: flex-end;
 }
 
-/* greeting */
 .user-greeting {
   font-size: 14px;
   color: #555;
@@ -200,14 +258,12 @@ onBeforeUnmount(() => {
     justify-content: center;
     padding: 12px 16px;
   }
-
   .nav-links {
     width: 100%;
     justify-content: center;
     order: 3;
     gap: 14px;
   }
-
   .nav-auth {
     order: 2;
     width: 100%;

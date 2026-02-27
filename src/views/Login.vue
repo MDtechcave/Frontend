@@ -42,6 +42,26 @@ const handleLogin = async () => {
       return
     }
 
+    const user = data.user
+    
+    // 🔧 TEMPORARY WORKAROUND: Use email as ID (NOT ideal)
+    // This is just to make NavBar work until backend is fixed
+    const userToStore = {
+      id: user.id || user.user_id || user.email,  // ← Email as fallback ID
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+    
+    console.log('⚠️ Storing user (using email as ID):', userToStore)
+    localStorage.setItem('user', JSON.stringify(userToStore))
+    
+    // Force NavBar update
+    window.dispatchEvent(new Event('storage'))
+    
+    // Redirect based on role
+    const userRole = user.role?.toLowerCase()
+    if (userRole === 'admin') {
     localStorage.setItem('user', JSON.stringify(data.user))
     localStorage.setItem('token', data.token || '') // safe if your backend returns token
     window.dispatchEvent(new Event('auth-changed')) // ✅ THIS makes navbar/sidebar update instantly
