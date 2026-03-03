@@ -1,10 +1,9 @@
 # Healthy Habits App
 
 ## Features
-- Track daily habits
-- Set reminders and notifications
-- Progress visualization
-- Integration with health data
+- Purchase weekly meal plans
+- Track your order and status
+- See hiking and running routes around Cape Town
 
 ## Installation
 1. Clone the repository:
@@ -25,7 +24,7 @@
    ```bash
    npm run serve
    ```
-- Open your browser and go to `http://localhost:8080` to view the application.
+- Open your browser and go to `http://localhost:5173` to view the application.
 
 ## Development
 - To start development, use:
@@ -41,10 +40,14 @@ Frontend/
 │   ├── components/
 │   ├── views/
 │   ├── router/
-│   ├── store/
+│   ├── stores/
 │   └── App.vue
 └── public/
+|__ .env/
 ```
+##Add this .env file to your root
+VITE_API_URL=http://localhost:2534
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_51T29Y7DMo7XbVmJRvsltySuJAMfNbdx29fEt5wVeg24omyCcpKfGAUAiJX4JCcgNwmbV9mZXTCaTceyL49mAc3Im00gKjIzV54
 
 ## Technologies Used
 - Vue.js
