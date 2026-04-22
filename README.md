@@ -46,7 +46,7 @@ Frontend/
 |__ .env/
 ```
 ##Add this .env file to your root
-VITE_API_URL=http://localhost:2534
+VITE_API_URL=https://health-habits-backend-production.up.railway.app
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_51T29Y7DMo7XbVmJRvsltySuJAMfNbdx29fEt5wVeg24omyCcpKfGAUAiJX4JCcgNwmbV9mZXTCaTceyL49mAc3Im00gKjIzV54
 
 ## Technologies Used
