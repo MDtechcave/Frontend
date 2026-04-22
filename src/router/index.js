@@ -21,7 +21,7 @@ const routes = [
     path: '/',
     name: 'home',
     component: HomeView,
-    meta: { requiresAuth: true, role: 'USER' }
+    // meta: { requiresAuth: true, role: 'USER' }
   },
   {
     path: '/login',
@@ -33,6 +33,7 @@ const routes = [
     path: '/register',
     name: 'register',
     component: Register,
+    meta: { guestOnly: true }
   },
   {
     path: '/profile',

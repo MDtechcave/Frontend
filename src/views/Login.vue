@@ -9,7 +9,7 @@ const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
-const showPassword = ref(false)
+const showPassword = ref('')
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:2534'
 
@@ -20,7 +20,7 @@ const togglePassword = () => {
 const handleLogin = async () => {
   errorMessage.value = ''
 
-  // quick validation - i’m not letting empty fields embarrass me in the demo 😭
+  // quick validation 
   if (!email.value || !password.value) {
     errorMessage.value = 'Please fill in all fields'
     return

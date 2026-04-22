@@ -3,7 +3,7 @@ import NavBar from '../components/NavBar.vue'
 import Footer from '../components/Footer.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import Sidebar from '@/components/Sidebar.vue'
+import Sidebar from '../components/Sidebar.vue'
 
 const router = useRouter()
 
