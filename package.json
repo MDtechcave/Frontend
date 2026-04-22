@@ -12,7 +12,10 @@
   "dependencies": {
     "@stripe/stripe-js": "^8.8.0",
     "axios": "^1.15.1",
+<<<<<<< HEAD
     "cors": "^2.8.6",
+=======
+>>>>>>> bc77da793b881133e34240d059a1b4c310ddcb32
     "vue": "^3.5.27",
     "vue-router": "^5.0.1",
     "vuex": "^4.1.0"
