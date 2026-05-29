@@ -6,7 +6,10 @@
       <p><strong>Amount:</strong> R{{ amount }}</p>
       <p v-if="orderId"><strong>Order ID:</strong> {{ orderId }}</p>
 
-      <div v-if="!ready && !message" class="muted">Preparing secure payment...</div>
+      <div v-if="!ready && !message" class="muted">
+        Preparing secure payment...
+      </div>
+
       <div id="payment-element" />
 
       <button :disabled="loading || !ready" @click="handlePayment">
@@ -26,7 +29,7 @@ import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:2534';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:2534";
 const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 const amount = computed(() => Number(route.query.amount || 0));
@@ -36,18 +39,15 @@ const elements = ref(null);
 const loading = ref(false);
 const ready = ref(false);
 const message = ref("");
+
 const orderId = ref(null);
 const orderCode = ref(null);
 
-// ✅ Correctly reads sub_id saved by Packages.vue after subscription is created
+// 🔐 Get subscription id from localStorage
 const subId = computed(() => {
   try {
     const user = JSON.parse(localStorage.getItem("user") || "null");
-    const id = user?.sub_id;
-    if (!id) {
-      console.warn('No sub_id found in localStorage user object:', user);
-    }
-    return id || null;
+    return user?.sub_id || null;
   } catch {
     return null;
   }
@@ -60,20 +60,20 @@ onMounted(async () => {
       return;
     }
 
-    // ✅ Guard: if no sub_id, stop and show clear error
     if (!subId.value) {
       message.value = "No subscription found. Please select a package first.";
       return;
     }
 
     if (!API_URL || !PUBLISHABLE_KEY) {
-      message.value = "Missing frontend .env values (API URL or Stripe key).";
+      message.value = "Missing environment variables.";
       return;
     }
 
     stripe.value = await loadStripe(PUBLISHABLE_KEY);
+
     if (!stripe.value) {
-      message.value = "Stripe failed to load. Check your publishable key.";
+      message.value = "Stripe failed to load.";
       return;
     }
 
@@ -81,7 +81,7 @@ onMounted(async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        sub_id: subId.value,  // ✅ correctly uses sub_id from subscription
+        sub_id: subId.value,
         amount: amount.value,
       }),
     });
@@ -96,7 +96,10 @@ onMounted(async () => {
     orderId.value = data.orderId || null;
     orderCode.value = data.orderCode || null;
 
-    elements.value = stripe.value.elements({ clientSecret: data.clientSecret });
+    elements.value = stripe.value.elements({
+      clientSecret: data.clientSecret,
+    });
+
     const paymentElement = elements.value.create("payment");
     paymentElement.mount("#payment-element");
 
@@ -113,6 +116,7 @@ const handlePayment = async () => {
   message.value = "";
 
   const { error: submitError } = await elements.value.submit();
+
   if (submitError) {
     message.value = submitError.message;
     loading.value = false;
@@ -130,9 +134,28 @@ const handlePayment = async () => {
   if (error) {
     message.value = error.message;
   } else {
-    localStorage.setItem('orderCode', orderCode.value);
-    localStorage.removeItem("cart");
-    router.push("/success");
+    try {
+      // 💾 Save locally
+      localStorage.setItem("orderCode", orderCode.value);
+      localStorage.removeItem("cart");
+
+      // 📧 Send email
+      await fetch(`${API_URL}/api/orders/send-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: orderId.value,
+        }),
+      });
+
+      // 🚀 Redirect after email
+      router.push("/success");
+    } catch (err) {
+      console.error("Email failed:", err);
+
+      // still continue UX even if email fails
+      router.push("/success");
+    }
   }
 
   loading.value = false;
@@ -145,11 +168,13 @@ const handlePayment = async () => {
   margin: 40px auto;
   font-family: Arial;
 }
+
 .card {
   border: 1px solid #ddd;
   padding: 20px;
   border-radius: 12px;
 }
+
 button {
   width: 100%;
   padding: 12px;
@@ -160,13 +185,16 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
+
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 .message {
   margin-top: 15px;
 }
+
 .muted {
   color: #666;
   margin: 10px 0;
