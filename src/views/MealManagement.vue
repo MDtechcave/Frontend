@@ -79,8 +79,7 @@ const carbs = ref("");
 const protein = ref("");
 
 // 🔥 CHANGE THIS TO YOUR BACKEND URL
-const API_URL = "http://localhost:2534/api/meals";
-
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:2534'}/api/meals`
 // Fetch meals
 const fetchMeals = async () => {
   try {

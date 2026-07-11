@@ -16,7 +16,7 @@ onMounted(async () => {
 const fetchUsers = async () => {
   isLoading.value = true
   try {
-    const response = await fetch('http://localhost:2534/api/users')
+    const response = await fetch(`${API_BASE}/api/users`)
     const data = await response.json()
     users.value = data.filter(u => u.role?.toLowerCase() === 'user')
   } catch (error) {
@@ -55,7 +55,7 @@ const toggleStatus = async (user) => {
   const originalStatus = user.status
   
   try {
-    const response = await fetch(`http://localhost:2534/api/users/${user.id}/status`, {
+    const response = await fetch(`${API_BASE}/api/users/${user.id}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
@@ -75,7 +75,7 @@ const deleteUser = async (id) => {
   if (!confirm('Are you sure you want to delete this customer?')) return
   
   try {
-    const response = await fetch(`http://localhost:2534/api/users/${id}`, {
+    const response = await fetch(`${API_BASE}/api/users/${id}`, {
       method: 'DELETE'
     })
     

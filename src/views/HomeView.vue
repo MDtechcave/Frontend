@@ -31,8 +31,7 @@ const fetchRandomMeals = async () => {
     error.value = null
 
     // i fetch all meals then i group them by type (breakfast/lunch/supper/snack)
-    const response = await fetch('http://localhost:2534/api/meals')
-
+  const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:2534'}/api/meals`)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }

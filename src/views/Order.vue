@@ -17,7 +17,7 @@ const fetchMealsByGoal = async () => {
     goalName.value = route.params.goal
     goalDisplayName.value = route.params.goal.replace(/_/g, ' ')
     
-    const response = await fetch(`http://localhost:2534/api/goals/${route.params.goal}/meals`)
+    const response = await fetch(`${API_BASE}/api/goals/${route.params.goal}/meals`)
     const data = await response.json()
     meals.value = data
   } catch (error) {
